@@ -6,11 +6,13 @@ public class Argument<T> {
     // represents an argument for a command. EX: "add 1 2" has two arguments "1" and "2"
     // arguments currently a name and a type that can be specified
     // for methods, return "this" to support chaining of methods
-    // todo must use .parseInt and parse double for int/double. Consider making new child classes for primitive types
 
     private final String name;
-    private Class<T> type;
+    private final Class<T> type;
     private Function<String, T> converterFunction; // optional custom converter function for parsing
+
+    private T minValue; // optional, for range validation
+    private T maxValue;
 
     public Argument(String name, Class<T> type) {
         this.name = name;
@@ -26,13 +28,37 @@ public class Argument<T> {
         return type;
     }
 
+    // range method for numeric types
+    public Argument<T> range(T min, T max) {
+        this.minValue = min;
+        this.maxValue = max;
+        return this;
+    }
+
     public Argument<T> parser(Function<String, T> converterFunction) {
         this.converterFunction = converterFunction;
-        return this; // for chaining
+        return this;
     }
 
     public T convert(String raw) {
         return converterFunction.apply(raw);
+    }
+
+    // range validation
+    public void validate(T value) {
+        if (minValue != null && ((Comparable<T>) value).compareTo(minValue) < 0) {
+            throw new IllegalArgumentException("Argument " + name + " must be at least " + minValue);
+        }
+        if (maxValue != null && ((Comparable<T>) value).compareTo(maxValue) > 0) {
+            throw new IllegalArgumentException("Argument " + name + " must be at most " + maxValue);
+        }
+    }
+
+    // convert string to value and validate
+    public T parse(String raw) {
+        T value = convert(raw);
+        validate(value);
+        return value;
     }
 
     // default converters for common Java types

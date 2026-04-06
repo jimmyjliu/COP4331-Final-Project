@@ -63,7 +63,7 @@ public class ArgumentParser {
             Object convertedValue;
 
             try {
-                convertedValue = arg.convert(rawValue);
+                convertedValue = arg.parse(rawValue);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
             }

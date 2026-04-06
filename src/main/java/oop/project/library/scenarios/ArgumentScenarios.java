@@ -29,11 +29,35 @@ public final class ArgumentScenarios {
     }
 
     public static Map<String, Object> sub(String arguments) throws RuntimeException {
-        throw new UnsupportedOperationException("TODO (PoC)");
+        try {
+            ArgumentParser parser = new ArgumentParser("sub");
+            parser.addArg("left", double.class);
+            parser.addArg("right", double.class);
+
+            var namespace = parser.parseArgs(arguments);
+
+            Double left = namespace.get("left", Double.class);
+            Double right = namespace.get("right", Double.class);
+
+            return Map.of("left", left, "right", right);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid sub arguments: " + e.getMessage());
+        }
     }
 
     public static Map<String, Object> fizzbuzz(String arguments) throws RuntimeException {
-        throw new UnsupportedOperationException("TODO (PoC)");
+        try {
+            ArgumentParser parser = new ArgumentParser("fizzbuzz");
+            parser.addArg("number", int.class).range(1, 100);
+
+            var namespace = parser.parseArgs(arguments);
+
+            Integer number = namespace.get("number", Integer.class);
+
+            return Map.of("number", number);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid fizzbuzz arguments: " + e.getMessage());
+        }
     }
 
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
