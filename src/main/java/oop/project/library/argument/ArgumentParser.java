@@ -4,6 +4,7 @@ import oop.project.library.input.BasicArgs;
 import oop.project.library.input.Input;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ArgumentParser {
@@ -12,7 +13,6 @@ public class ArgumentParser {
     like python's argparse, constructor takes in a program/command name
     add_arg method will support arguments for that program/command
     in the argument parser, keep a list of type Arguments?
-    TODO allow custom parsing (ie LocalDate's parse method)
     allow for refinement of arguments (range)
     */
 
@@ -23,8 +23,16 @@ public class ArgumentParser {
         this.programName = programName;
     }
 
+    public String getProgramName() {
+        return programName;
+    }
+
+    public ArrayList<Argument<?>> getArguments() {
+        return arguments;
+    }
+
+    // add argument to parser with specified name and type
     public<T> Argument<T> addArg(String name, Class<T> type) {
-        // add an argument with the given name and default type of String
         Argument<T> argument = new Argument<>(name, type);
         arguments.add(argument);
         return argument;
@@ -35,11 +43,33 @@ public class ArgumentParser {
         return addArg(name, String.class);
     }
 
-    public Map parseArgs(String arguments) throws RuntimeException {
+    public Namespace parseArgs(String arguments) throws RuntimeException {
         Input lexer = new Input(arguments);
 
         BasicArgs args = lexer.parseBasicArgs();
 
-        return null;
+        // throw exception if number of positional arguments doesn't match expected number
+        if (args.positional().size() != getArguments().size()) {
+            throw new RuntimeException("Expected " + getArguments().size() + " positional arguments but got " + args.positional().size());
+        }
+
+        Map<String, Object> parsedArgs = new HashMap<>();
+
+        for (int i = 0; i < getArguments().size(); i++) {
+            Argument<?> arg = getArguments().get(i);
+            String rawValue = args.positional().get(i);
+
+            Object convertedValue;
+
+            try {
+                convertedValue = arg.convert(rawValue);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
+            }
+
+            parsedArgs.put(arg.getName(), convertedValue);
+        }
+
+        return new Namespace(parsedArgs);
     }
 }
