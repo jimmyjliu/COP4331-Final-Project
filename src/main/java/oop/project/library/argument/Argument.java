@@ -1,5 +1,6 @@
 package oop.project.library.argument;
 
+import java.util.Set;
 import java.util.function.Function;
 
 public class Argument<T> {
@@ -9,10 +10,16 @@ public class Argument<T> {
 
     private final String name;
     private final Class<T> type;
-    private Function<String, T> converterFunction; // optional custom converter function for parsing
 
-    private T minValue; // optional, for range validation
+    // optional custom converter function for parsing
+    private Function<String, T> converterFunction;
+
+    // optional min/max values for range validation
+    private T minValue;
     private T maxValue;
+
+    // optional for choices validation
+    private Set<T> choices;
 
     public Argument(String name, Class<T> type) {
         this.name = name;
@@ -28,13 +35,20 @@ public class Argument<T> {
         return type;
     }
 
-    // range method for numeric types
+    // method to set range for number types
     public Argument<T> range(T min, T max) {
         this.minValue = min;
         this.maxValue = max;
         return this;
     }
 
+    // method to provide a set of valid choices for the argument. Enums are todo
+    public Argument<T> choices(T... choices) {
+        this.choices = Set.of(choices);
+        return this;
+    }
+
+    // method to set custom converter function for parsing
     public Argument<T> parser(Function<String, T> converterFunction) {
         this.converterFunction = converterFunction;
         return this;
@@ -44,13 +58,16 @@ public class Argument<T> {
         return converterFunction.apply(raw);
     }
 
-    // range validation
+    // range & choice validation
     public void validate(T value) {
         if (minValue != null && ((Comparable<T>) value).compareTo(minValue) < 0) {
             throw new IllegalArgumentException("Argument " + name + " must be at least " + minValue);
         }
         if (maxValue != null && ((Comparable<T>) value).compareTo(maxValue) > 0) {
             throw new IllegalArgumentException("Argument " + name + " must be at most " + maxValue);
+        }
+        if (choices != null && !choices.contains(value)) {
+            throw new IllegalArgumentException("Argument " + name + " must be one of " + choices);
         }
     }
 

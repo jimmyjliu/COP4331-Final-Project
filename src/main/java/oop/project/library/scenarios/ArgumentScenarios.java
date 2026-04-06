@@ -61,7 +61,18 @@ public final class ArgumentScenarios {
     }
 
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
-        throw new UnsupportedOperationException("TODO (PoC)");
+        try {
+            ArgumentParser parser = new ArgumentParser("difficulty");
+            parser.addArg("difficulty", String.class).choices("easy", "normal", "hard", "peaceful");
+
+            var namespace = parser.parseArgs(arguments);
+
+            String difficulty = namespace.get("difficulty", String.class);
+
+            return Map.of("difficulty", difficulty);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid difficulty arguments: " + e.getMessage());
+        }
     }
 
     public static Map<String, Object> date(String arguments) throws RuntimeException {
