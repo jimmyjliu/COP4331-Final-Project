@@ -4,9 +4,12 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class Argument<T> {
-    // represents an argument for a command. EX: "add 1 2" has two arguments "1" and "2"
-    // arguments currently a name and a type that can be specified
-    // for methods, return "this" to support chaining of methods
+    /*
+         represents an argument for a command. EX: "add 1 2" has two arguments "1" and "2"
+         arguments currently must be provided with a name and type upon construction
+         other fields can be set with methods
+         for methods, return "this" to support chaining of methods
+    */
 
     private final String name;
     private final Class<T> type;
@@ -24,7 +27,13 @@ public class Argument<T> {
     public Argument(String name, Class<T> type) {
         this.name = name;
         this.type = type;
-        this.converterFunction = defaultConverter(type); // set default converter based on type
+
+        // set converter as null if default one doesn't exist. We expect the user to pass in their own
+        try {
+            this.converterFunction = defaultConverter(type);
+        } catch (IllegalArgumentException e) {
+            this.converterFunction = null;
+        }
     }
 
     public String getName() {
@@ -55,6 +64,9 @@ public class Argument<T> {
     }
 
     public T convert(String raw) {
+        if (converterFunction == null) {
+            throw new IllegalStateException("No converter/parser function set for argument " + name + ". Provide a custom parser using .parser(<function>)" );
+        }
         return converterFunction.apply(raw);
     }
 

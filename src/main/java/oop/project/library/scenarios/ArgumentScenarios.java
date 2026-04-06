@@ -76,7 +76,18 @@ public final class ArgumentScenarios {
     }
 
     public static Map<String, Object> date(String arguments) throws RuntimeException {
-        throw new UnsupportedOperationException("TODO (PoC)");
+        try {
+            ArgumentParser parser = new ArgumentParser("date");
+            parser.addArg("date", LocalDate.class).parser(LocalDate::parse);
+
+            var namespace = parser.parseArgs(arguments);
+
+            LocalDate date = namespace.get("date", LocalDate.class);
+
+            return Map.of("date", date);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid date arguments: " + e.getMessage());
+        }
     }
 
 }

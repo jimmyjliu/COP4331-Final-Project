@@ -9,11 +9,9 @@ import java.util.Map;
 
 public class ArgumentParser {
     /*
-    Ideas:
-    like python's argparse, constructor takes in a program/command name
-    add_arg method will support arguments for that program/command
-    in the argument parser, keep a list of type Arguments?
-    allow for refinement of arguments (range)
+        ArgumentParser similar to argparse4j but with requirements of stronger typing
+        - positional arguments only (for now)
+        todo add support for named args
     */
 
     String programName;
@@ -64,6 +62,8 @@ public class ArgumentParser {
 
             try {
                 convertedValue = arg.parse(rawValue);
+            }  catch (IllegalStateException e) {
+                throw e;
             } catch (Exception e) {
                 throw new RuntimeException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
             }
