@@ -55,6 +55,7 @@ public class ArgumentParser {
 
         Map<String, Object> parsedArgs = new HashMap<>();
 
+        // todo add support for named arguments
         for (int i = 0; i < getArguments().size(); i++) {
             Argument<?> arg = getArguments().get(i);
             String rawValue = args.positional().get(i);

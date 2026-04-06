@@ -17,10 +17,10 @@ public final class ArgumentScenarios {
             parser.addArg("left", int.class);
             parser.addArg("right", int.class);
 
-            Namespace namespace = parser.parseArgs(arguments);
+            var namespace = parser.parseArgs(arguments);
 
-            Integer left = namespace.get("left");
-            Integer right = namespace.get("right");
+            Integer left = namespace.get("left", Integer.class);
+            Integer right = namespace.get("right", Integer.class);
 
             return Map.of("left", left, "right", right);
         } catch (RuntimeException e) {

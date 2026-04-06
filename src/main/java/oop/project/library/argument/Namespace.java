@@ -10,7 +10,17 @@ public class Namespace {
         this.values = values;
     }
 
-    public <T> T get(String name) {
-        return (T) values.get(name);
+    public <T> T get(String name, Class<T> type) throws RuntimeException {
+        if (!values.containsKey(name)) {
+            throw new RuntimeException("Argument " + name + " not found");
+        }
+
+        Object value = values.get(name);
+
+        if (!type.isInstance(value)) {
+            throw new RuntimeException("Argument " + name + " is not of type " + type.getSimpleName());
+        }
+
+        return type.cast(value);
     }
 }
