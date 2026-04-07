@@ -27,13 +27,7 @@ public class Argument<T> {
     public Argument(String name, Class<T> type) {
         this.name = name;
         this.type = type;
-
-        // set converter as null if default one doesn't exist. We expect the user to pass in their own
-        try {
-            this.converterFunction = defaultConverter(type);
-        } catch (IllegalArgumentException e) {
-            this.converterFunction = null;
-        }
+        this.converterFunction = defaultConverter(type);
     }
 
     public String getName() {
@@ -63,7 +57,8 @@ public class Argument<T> {
         return this;
     }
 
-    public T convert(String raw) {
+    // convert raw string to value using converter function
+    private T convert(String raw) {
         if (converterFunction == null) {
             throw new IllegalStateException("No converter/parser function set for argument " + name + ". Provide a custom parser using .parser(<function>)" );
         }
@@ -71,19 +66,17 @@ public class Argument<T> {
     }
 
     // range & choice validation
-    public void validate(T value) {
-        if (minValue != null && ((Comparable<T>) value).compareTo(minValue) < 0) {
-            throw new IllegalArgumentException("Argument " + name + " must be at least " + minValue);
-        }
-        if (maxValue != null && ((Comparable<T>) value).compareTo(maxValue) > 0) {
-            throw new IllegalArgumentException("Argument " + name + " must be at most " + maxValue);
+    private void validate(T value) {
+        if ((minValue != null && ((Comparable<T>) value).compareTo(minValue) < 0)
+                || (maxValue != null && ((Comparable<T>) value).compareTo(maxValue) > 0)) {
+            throw new ArgumentParseException("Argument " + name + " must be between " + minValue + " and " + maxValue);
         }
         if (choices != null && !choices.contains(value)) {
-            throw new IllegalArgumentException("Argument " + name + " must be one of " + choices);
+            throw new ArgumentParseException("Argument " + name + " must be one of " + choices);
         }
     }
 
-    // convert string to value and validate
+    // convert string to value and validate, public facing method for parsing argument
     public T parse(String raw) {
         T value = convert(raw);
         validate(value);
@@ -97,6 +90,6 @@ public class Argument<T> {
         if (type == Double.class || type == double.class) return s -> (T) Double.valueOf(Double.parseDouble(s));
         if (type == Boolean.class || type == boolean.class) return s -> (T) Boolean.valueOf(s);
 
-        throw new IllegalArgumentException("No default converter for " + type.getSimpleName());
+        return null;
     }
 }

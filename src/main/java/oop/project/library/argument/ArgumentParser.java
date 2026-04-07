@@ -48,7 +48,7 @@ public class ArgumentParser {
 
         // throw exception if number of positional arguments doesn't match expected number
         if (args.positional().size() != getArguments().size()) {
-            throw new RuntimeException("Expected " + getArguments().size() + " positional arguments but got " + args.positional().size());
+            throw new ArgumentParseException("Expected " + getArguments().size() + " positional arguments but got " + args.positional().size());
         }
 
         Map<String, Object> parsedArgs = new HashMap<>();
@@ -62,10 +62,10 @@ public class ArgumentParser {
 
             try {
                 convertedValue = arg.parse(rawValue);
-            }  catch (IllegalStateException e) {
+            }  catch (ArgumentParseException | IllegalStateException e) { // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
                 throw e;
             } catch (Exception e) {
-                throw new RuntimeException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
+                throw new ArgumentParseException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
             }
 
             parsedArgs.put(arg.getName(), convertedValue);
