@@ -39,6 +39,7 @@ public class Argument<T> {
     }
 
     // method to set range for number types
+    // todo consideration: should we enforce that min <= max?
     public Argument<T> range(T min, T max) {
         this.minValue = min;
         this.maxValue = max;
