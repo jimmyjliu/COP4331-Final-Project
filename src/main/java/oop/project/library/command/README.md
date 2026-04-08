@@ -1,4 +1,4 @@
-# Argument System
+# Command System
 
 Handles creation of creation command structures and multi-argument parsing.
 
