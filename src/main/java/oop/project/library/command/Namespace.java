@@ -1,4 +1,4 @@
-package oop.project.library.argument;
+package oop.project.library.command;
 
 import java.util.Map;
 

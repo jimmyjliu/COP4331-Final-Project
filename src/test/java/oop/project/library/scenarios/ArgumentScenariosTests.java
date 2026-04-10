@@ -128,6 +128,29 @@ class ArgumentScenariosTests {
         );
     }
 
+    @ParameterizedTest
+    @MethodSource
+    public void testBool(String name, String command, Map<String, Object> expected) {
+        test(command, expected);
+    }
+
+    private static Stream<Arguments> testBool() {
+        return Stream.of(
+            Arguments.of("true", """
+            bool true
+            """, Map.of("value", true)),
+            Arguments.of("TRue (incorrect caps)", """
+            bool TRue
+            """, null),
+            Arguments.of("false", """
+            bool false
+            """, Map.of("value", false)),
+            Arguments.of("FALSE (all caps)", """
+            bool FALSE
+            """, null)
+        );
+    }
+
     private static void test(String command, Map<String, Object> expected) {
         try {
             var result = Scenarios.parse(command.stripTrailing()); //trailing newline

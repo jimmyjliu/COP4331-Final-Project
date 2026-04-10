@@ -43,6 +43,9 @@ Running log of design decisions, tradeoffs, and other observations.
     - i.e. should be one dash and one character
 
 ### Individual Review (Argument Lead)
+One well-designed aspect of th Command system is that it incorporates stronger typing when a user add and retrieves an argument. This implementation removes the need for a user to cast types and instead allows the API to handle it. Additionally, the Command system is well-designed in that it throws more specific error message to the user if they use the CLI command incorrectly.
+
+One lesser-well designed aspect is that Command currently stores both verbose and short named flags that point to the same argument. This could cause issues in the future if required arguments are implemented.
 
 ### Team Review
 Currently, we are at a slight disagreement over whether to turn commands into a builder class. argparse4j does not use a builder class but very much has a similar structure by chaining on multiple functionality. Jimmy believes we should do it like argparse4j, while Elle believes it might be better as a builder (note: hasn't looked into the full implementation to be certain of this). 
