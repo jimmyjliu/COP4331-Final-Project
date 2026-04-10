@@ -84,4 +84,19 @@ public final class ArgumentScenarios {
         }
     }
 
+    public static Map<String, Object> bool(String arguments) throws RuntimeException {
+        try {
+            Command parser = new Command("bool");
+            parser.addArgument(Boolean.class, "value");
+
+            var namespace = parser.parseArgs(arguments);
+
+            Boolean value = namespace.get("value", Boolean.class);
+
+            return Map.of("value", value);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid bool arguments: " + e.getMessage());
+        }
+    }
+
 }

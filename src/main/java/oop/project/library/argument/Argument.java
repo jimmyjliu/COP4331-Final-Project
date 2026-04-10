@@ -84,12 +84,18 @@ public class Argument<T> {
         return value;
     }
 
+    private static Boolean parseBoolean(String s) {
+        if (s.equals("true")) return true;
+        if (s.equals("false")) return false;
+        throw new IllegalArgumentException("Expected 'true' or 'false' but got: " + s);
+    }
+
     // default converters for common Java types
     private static <T> Function<String, T> defaultConverter(Class<T> type) {
         if (type == String.class) return type::cast;
         if (type == Integer.class || type == int.class) return s -> (T) Integer.valueOf(Integer.parseInt(s));
         if (type == Double.class || type == double.class) return s -> (T) Double.valueOf(Double.parseDouble(s));
-        if (type == Boolean.class || type == boolean.class) return s -> (T) Boolean.valueOf(s);
+        if (type == Boolean.class || type == boolean.class) return s -> (T) parseBoolean(s);
 
         return null;
     }
