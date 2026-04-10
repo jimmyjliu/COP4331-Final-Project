@@ -62,7 +62,7 @@ public class Command {
                 name = dest[i].replaceFirst("^-+", "");
                 this.namedArgs.put(name, argument);
             } else {
-                throw new IllegalArgumentException("Not a named argument.");
+                throw new IllegalArgumentException(dest[i] + "is not a named argument (missing flag notation - or --).");
             }
         }
         return argument;
@@ -98,7 +98,7 @@ public class Command {
                 String name = dest[i].replaceFirst("^-+", "");
                 this.namedArgs.put(name, argument);
             } else {
-                throw new IllegalArgumentException("Not a named argument.");
+                throw new IllegalArgumentException(dest[i] + "is not a named argument (missing flag notation - or --).");
             }
         }
         return argument;
@@ -108,9 +108,9 @@ public class Command {
         Input lexer = new Input(arguments);
 
         BasicArgs args = lexer.parseBasicArgs();
-        System.out.println(args.toString());
-        System.out.println("POSITIONAL ARGUMENTS: " + args.positional().toString());
-        System.out.println("NAMED ARGUMENTS: " + args.named().toString());
+//        System.out.println(args.toString());
+//        System.out.println("POSITIONAL ARGUMENTS: " + args.positional().toString());
+//        System.out.println("NAMED ARGUMENTS: " + args.named().toString());
 
         // throw exception if number of positional arguments doesn't match expected number
         if (args.positional().size() != getPositionalArgs().size()) {
@@ -127,7 +127,8 @@ public class Command {
 
             try {
                 convertedValue = arg.parse(rawValue);
-            }  catch (ArgumentParseException | IllegalStateException e) { // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
+            }  catch (ArgumentParseException | IllegalStateException e) {
+                // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
                 throw e;
             } catch (Exception e) {
                 throw new ArgumentParseException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
@@ -149,7 +150,16 @@ public class Command {
                     throw new ArgumentParseException("Named argument '" + flag + "' is not a valid argument.");
                 }
 
-                Object convertedValue = argument.parse(rawValue);
+                Object convertedValue;
+                try {
+                    convertedValue = argument.parse(rawValue);
+                }  catch (ArgumentParseException | IllegalStateException e) {
+                    // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
+                    throw e;
+                } catch (Exception e) {
+                    throw new ArgumentParseException("Failed to convert argument '" + argument.getName() + "' with value '" + rawValue + "' to type " + argument.getType().getSimpleName(),
+                            e);
+                }
                 parsedArgs.put(flag, convertedValue);
             }
         }

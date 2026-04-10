@@ -18,7 +18,7 @@ public final class CommandScenarios {
             Integer right = namespace.get("right", Integer.class);
             return Map.of("left", left, "right", right);
        } catch (RuntimeException e) {
-           throw new RuntimeException("Invalid add arguments: " + e.getMessage());
+           throw new RuntimeException("Invalid mul arguments: " + e.getMessage());
        }
     }
 
@@ -34,22 +34,23 @@ public final class CommandScenarios {
             Double right = namespace.get("right", Double.class);
             return Map.of("left", left, "right", right);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
+            throw new RuntimeException("Invalid div arguments: " + e.getMessage());
         }
     }
 
     public static Map<String, Object> echo(String arguments) throws RuntimeException {
-        try {
-            Command parse = new Command("echo");
-            parse.addArgument(String.class, "message");
-
-            var namespace = parse.parseArgs(arguments);
-
-            String message = namespace.get("message", String.class);
-            return Map.of("message", message);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
-        }
+//        try {
+//            Command parse = new Command("echo");
+//            parse.addArgument(String.class, "message");
+//
+//            var namespace = parse.parseArgs(arguments);
+//
+//            String message = namespace.get("message", String.class);
+//            return Map.of("message", message);
+//        } catch (RuntimeException e) {
+//            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
+//        }
+        throw new UnsupportedOperationException("TODO (MVP)");
     }
 
     public static Map<String, Object> search(String arguments) throws RuntimeException {
