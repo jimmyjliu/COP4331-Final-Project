@@ -1,6 +1,6 @@
 package oop.project.library.scenarios;
 
-import oop.project.library.command.Command;
+import oop.project.library.command.*;
 
 import java.util.Map;
 
