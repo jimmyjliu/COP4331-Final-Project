@@ -24,6 +24,9 @@ public class Argument<T> {
     // optional for choices validation
     private Set<T> choices;
 
+    // optional for choices and enums case sensitivity (sensitive by default)
+    private boolean caseSensitive = true;
+
     public Argument(String name, Class<T> type) {
         this.name = name;
         this.type = type;
@@ -46,9 +49,15 @@ public class Argument<T> {
         return this;
     }
 
-    // method to provide a set of valid choices for the argument. Enums are todo
+    // method to provide a set of valid choices for the argument.
     public Argument<T> choices(T... choices) {
         this.choices = Set.of(choices);
+        return this;
+    }
+
+    // method to set case sensitivity for choices and enums, default is true (case sensitive)
+    public Argument<T> caseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
         return this;
     }
 
@@ -72,9 +81,22 @@ public class Argument<T> {
                 || (maxValue != null && ((Comparable<T>) value).compareTo(maxValue) > 0)) {
             throw new ArgumentParseException("Argument " + name + " must be between " + minValue + " and " + maxValue);
         }
-        if (choices != null && !choices.contains(value)) {
+        if (choices != null && !validateChoices(value)) {
             throw new ArgumentParseException("Argument " + name + " must be one of " + choices);
         }
+    }
+
+    private boolean validateChoices(T value) {
+        if (caseSensitive) {
+            return choices.contains(value);
+        }
+
+        for (T choice : choices) {
+            if (choice.toString().equalsIgnoreCase(value.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // convert string to value and validate, public facing method for parsing argument
@@ -90,12 +112,29 @@ public class Argument<T> {
         throw new IllegalArgumentException("Expected 'true' or 'false' but got: " + s);
     }
 
+    private <T extends Enum<T>> T parseEnum(Class<T> type, String s) {
+        if (caseSensitive) {
+            return Enum.valueOf(type, s);
+        }
+
+        for (T constant : type.getEnumConstants()) {
+            if (constant.name().equalsIgnoreCase(s)) {
+                return constant;
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "Invalid value '" + s + "' for enum (case sensitive) " + type.getSimpleName()
+        );
+    }
+
     // default converters for common Java types
-    private static <T> Function<String, T> defaultConverter(Class<T> type) {
+    private <T> Function<String, T> defaultConverter(Class<T> type) {
         if (type == String.class) return type::cast;
         if (type == Integer.class || type == int.class) return s -> (T) Integer.valueOf(Integer.parseInt(s));
         if (type == Double.class || type == double.class) return s -> (T) Double.valueOf(Double.parseDouble(s));
         if (type == Boolean.class || type == boolean.class) return s -> (T) parseBoolean(s);
+        if (type.isEnum()) return s -> (T) parseEnum((Class<? extends Enum>) type, s);
 
         return null;
     }

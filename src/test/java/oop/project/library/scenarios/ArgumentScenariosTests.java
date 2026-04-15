@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import oop.project.library.scenarios.ArgumentScenarios.Difficulty;
+
 class ArgumentScenariosTests {
 
     @ParameterizedTest
@@ -102,8 +104,32 @@ class ArgumentScenariosTests {
             Arguments.of("Easy", """
                 difficulty easy
                 """, Map.of("difficulty", "easy")),
+            Arguments.of("Hard (case insensitive)", """
+                difficulty HARD
+                """, Map.of("difficulty", "HARD")),
             Arguments.of("Hardcore", """
                 difficulty hardcore
+                """, null)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testDifficultyEnum(String name, String command, Map<String, Object> expected) {
+        test(command, expected);
+    }
+
+    private static Stream<Arguments> testDifficultyEnum() {
+
+        return Stream.of(
+                Arguments.of("Easy", """
+                enums EASY
+                """, Map.of("difficulty", Difficulty.EASY)),
+                Arguments.of("Peaceful (case insensitive test)", """
+                enums peacefuL
+                """, Map.of("difficulty", Difficulty.PEACEFUL)),
+                Arguments.of("Hardcore", """
+                enums hardcore
                 """, null)
         );
     }
