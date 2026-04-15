@@ -39,27 +39,33 @@ public final class CommandScenarios {
     }
 
     public static Map<String, Object> echo(String arguments) throws RuntimeException {
-//        try {
-//            Command parse = new Command("echo");
-//            parse.addArgument(String.class, "message");
-//
-//            var namespace = parse.parseArgs(arguments);
-//
-//            String message = namespace.get("message", String.class);
-//            return Map.of("message", message);
-//        } catch (RuntimeException e) {
-//            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
-//        }
-        throw new UnsupportedOperationException("TODO (MVP)");
+        try {
+            Command parse = new Command("echo");
+            parse.addArgument(String.class, "message").setDefault("echo,echo,echo...");
+
+            var namespace = parse.parseArgs(arguments);
+
+            String message = namespace.get("message", String.class);
+            return Map.of("message", message);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
+        }
     }
 
     public static Map<String, Object> search(String arguments) throws RuntimeException {
-//        try {
-//
-//        } catch (RuntimeException e) {
-//            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
-//        }
-        throw new UnsupportedOperationException("TODO (MVP)");
+        try {
+            Command parse = new Command("search");
+            parse.addArgument(String.class, "term");
+            parse.addArgument(boolean.class, "--case-insensitive", "-i").setDefault(false);
+
+            var namespace = parse.parseArgs(arguments);
+            var term = namespace.get("term", String.class);
+            var caseInsensitive = namespace.get("case-insensitive", Boolean.class);
+
+            return Map.of("term", term, "case-insensitive", caseInsensitive);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid search arguments: " + e.getMessage());
+        }
     }
 
     public static Map<String, Object> dispatch(String arguments) throws RuntimeException {
