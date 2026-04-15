@@ -84,6 +84,9 @@ class ArgumentScenariosTests {
                 """, Map.of("number", 15)),
             Arguments.of("Zero", """
                 fizzbuzz 0
+                """, null),
+            Arguments.of("test", """
+                fizzbuzz
                 """, null)
         );
     }

@@ -7,9 +7,9 @@ import java.util.Map;
 public final class Scenarios {
 
     public static Map<String, Object> parse(String command) {
-        // Still a bit hacky to extract the base command, but necessary.
+        // Hacky extraction of base command, but necessary without subcommands.
         var index = command.indexOf(" ");
-        var base = index != -1 ? command.substring(0, index) : "";
+        var base = index != -1 ? command.substring(0, index) : command;
         var arguments = index != -1 ? " ".repeat(base.length()) + command.substring(index) : ""; //maintain index
         return switch (base) {
             case "input" -> input(arguments);
@@ -32,7 +32,7 @@ public final class Scenarios {
         try {
             return Map.of("arguments", new Input(arguments).parseBasicArgs());
         } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid input: " + e.getMessage());
+            throw new RuntimeException("Invalid input: " + e.getMessage(), e);
         }
     }
 
