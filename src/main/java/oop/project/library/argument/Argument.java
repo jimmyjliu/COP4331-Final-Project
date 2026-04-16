@@ -50,6 +50,10 @@ public class Argument<T> {
     // method to set range for number types
     // todo consideration: should we enforce that min <= max?
     public Argument<T> range(T min, T max) {
+        // runtime, dev facing error message
+        if (!isNumericType()) {
+            throw new IllegalStateException("Range validation is only applicable for numeric types. Argument " + name + " is of type " + type.getSimpleName());
+        }
         this.minValue = min;
         this.maxValue = max;
         return this;
@@ -63,12 +67,18 @@ public class Argument<T> {
 
     // method to set case sensitivity for choices and enums, default is true (case sensitive)
     public Argument<T> caseSensitive(boolean caseSensitive) {
+        if (!supportsCaseSensitivity()) {
+            throw new IllegalStateException("Case sensitivity is only applicable for String and enum types. Argument " + name + " is of type " + type.getSimpleName());
+        }
         this.caseSensitive = caseSensitive;
         return this;
     }
 
     // method for setting a regex String
     public Argument<T> regex(String s) {
+        if (this.type != String.class) {
+            throw new IllegalStateException("Regex validation is only applicable for String types. Argument " + name + " is of type " + type.getSimpleName());
+        }
         try {
             pattern = Pattern.compile(s);
             this.regex = s;
@@ -128,6 +138,22 @@ public class Argument<T> {
         T value = convert(raw);
         validate(value);
         return value;
+    }
+
+    // numeric type helper
+    private boolean isNumericType() {
+        return Number.class.isAssignableFrom(type)
+                || type == int.class
+                || type == double.class
+                || type == long.class
+                || type == float.class
+                || type == short.class
+                || type == byte.class;
+    }
+
+    // case sensitivity helper
+    private boolean supportsCaseSensitivity() {
+        return type == String.class || type.isEnum();
     }
 
     private static Boolean parseBoolean(String s) {
