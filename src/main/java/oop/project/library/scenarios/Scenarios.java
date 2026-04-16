@@ -20,6 +20,7 @@ public final class Scenarios {
             case "enums" -> ArgumentScenarios.enums(arguments);
             case "date" -> ArgumentScenarios.date(arguments);
             case "bool" -> ArgumentScenarios.bool(arguments);
+            case "regex" -> ArgumentScenarios.regex(arguments);
             case "mul" -> CommandScenarios.mul(arguments);
             case "div" -> CommandScenarios.div(arguments);
             case "echo" -> CommandScenarios.echo(arguments);

@@ -2,6 +2,8 @@ package oop.project.library.argument;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Argument<T> {
     /*
@@ -26,6 +28,10 @@ public class Argument<T> {
 
     // optional for choices and enums case sensitivity (sensitive by default)
     private boolean caseSensitive = true;
+
+    // optional for regex validation (for string types)
+    private String regex;
+    private Pattern pattern;
 
     public Argument(String name, Class<T> type) {
         this.name = name;
@@ -61,6 +67,18 @@ public class Argument<T> {
         return this;
     }
 
+    // method for setting a regex String
+    public Argument<T> regex(String s) {
+        try {
+            pattern = Pattern.compile(s);
+            this.regex = s;
+            return this;
+        }
+        catch (Exception e) {
+            throw new ArgumentParseException("Invalid regex pattern: " + s);
+        }
+    }
+
     // method to set custom converter function for parsing
     public Argument<T> parser(Function<String, T> converterFunction) {
         this.converterFunction = converterFunction;
@@ -83,6 +101,12 @@ public class Argument<T> {
         }
         if (choices != null && !validateChoices(value)) {
             throw new ArgumentParseException("Argument " + name + " must be one of " + choices);
+        }
+        if (regex != null) {
+            Matcher matcher = pattern.matcher(value.toString());
+            if (!matcher.matches()) {
+                throw new ArgumentParseException("Argument " + name + " must match regex: " + regex);
+            }
         }
     }
 

@@ -115,4 +115,18 @@ public final class ArgumentScenarios {
         }
     }
 
+    public static Map<String, Object> regex(String arguments) throws RuntimeException {
+        try {
+            Command parser = new Command("regex");
+            parser.addArgument(String.class,"input").regex("[A-Z]+-[IV]+").caseSensitive(false);
+
+            var namespace = parser.parseArgs(arguments);
+
+            String input = namespace.get("input", String.class);
+
+            return Map.of("input", input);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid regex arguments: " + e.getMessage());
+        }
+    }
 }

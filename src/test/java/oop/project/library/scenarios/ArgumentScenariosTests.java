@@ -180,6 +180,29 @@ class ArgumentScenariosTests {
         );
     }
 
+    @ParameterizedTest
+    @MethodSource
+    public void testRegex(String name, String command, Map<String, Object> expected) {
+        test(command, expected);
+    }
+
+    private static Stream<Arguments> testRegex() {
+        return Stream.of(
+            Arguments.of("Passing regex", """
+                regex GRASS-V
+                """, Map.of("input", "GRASS-V")),
+            Arguments.of("Random text, passing", """
+                regex QUEENELIZABETH-II
+                """, Map.of("input", "QUEENELIZABETH-II")),
+            Arguments.of("non valid", """
+                regex hello-v
+                """, null),
+            Arguments.of("empty", """
+                regex
+                """, null)
+        );
+    }
+
     private static void test(String command, Map<String, Object> expected) {
         try {
             var result = Scenarios.parse(command.stripTrailing()); //trailing newline
