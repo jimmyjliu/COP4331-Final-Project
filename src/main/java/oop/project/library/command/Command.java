@@ -43,7 +43,7 @@ public class Command {
         // flags:
             // short: a dash and one lower case letter
             // long: two dash, at least one more lower case letters use - to indicate spacing
-        if (!(dest[0].matches("-[a-z]|--[a-z]+(-[a-z]+)*"))) {
+        if (!(dest[0].matches("(-|--)[a-z]+(-[a-z]+)*"))) {
             if(argNameExists(dest[0])) { // check to ensure name isn't being used already
                 throw new IllegalArgumentException("Argument " + dest[0] + " already exists");
             }
@@ -70,7 +70,7 @@ public class Command {
         this.argumentNames.add(name);
 
         for (int i = 1; i < dest.length; i++) {
-            if (dest[i].matches("-[a-z]|--[a-z]+(-[a-z]+)*")) {
+            if (dest[i].matches("(-|--)[a-z]+(-[a-z]+)*")) {
                 name = dest[i].replaceFirst("^-+", "");
                 if(argNameExists(name)) {
                     throw new IllegalArgumentException("Argument " + name + " already exists");
@@ -170,7 +170,7 @@ public class Command {
                     throw new ArgumentParseException("Failed to convert argument '" + argument.getName() + "' with value '" + rawValue + "' to type " + argument.getType().getSimpleName(),
                             e);
                 }
-                parsedArgs.put(flag, convertedValue);
+                parsedArgs.put(argument.getName(), convertedValue);
             }
         }
 
