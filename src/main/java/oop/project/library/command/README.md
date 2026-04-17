@@ -41,7 +41,7 @@ Running log of design decisions, tradeoffs, and other observations.
     - Created a default for addArguments
       - The default will handle the type as a string
 
-## MVP Design Ananlysis
+## MVP Design Analysis
 ### Individual Review (Command Lead)
 #### Good Design Decisions
 - I finally realized that Command needed to be separated by responsibilities. In the PoC, I had my Command Class doing everything from adding arguments to parsing. Although I 
@@ -69,11 +69,18 @@ Running log of design decisions, tradeoffs, and other observations.
   think this would be confusing for users and does not handle the subcommands the best. 
 ### Individual Review (Argument Lead)
 
+#### Good Design Decision
+- The separation of concerns for the command system is more clear and understandable. With the introduction of subcommands, the design choice to break down the original single command class follows the Single responsibility principle of SOLID.
+
+#### Bad Design Decision
+- It isn't completely clear (unless of a user consults documentation) how "retrieval" of flags works. If a user defines a named argument with both a short and long flag, retrieval of the argument from the namespace is dependent on the first flag provided which many not be completely obvious to the user. Additionally, there isn't a descriptive error that is thrown that explains this behavior.
+
 ### Team Review
 #### Design Decision Disagreement
+- One disagreement we had is that we don't fully agree on how the developer should be retrieving named args. Currently, the command system requires that you retrieve the argument value using the first flag provided whereas argparse4j does the verbose flag.
 
-### Concern to Improve
-Subcommands cannot have their own subcommands. I currently believe the design does not permit a subcommand to have subcommands of its own. I am not sure whether argparse
+#### Concern to Improve
+- Subcommands cannot have their own subcommands. I currently believe the design does not permit a subcommand to have subcommands of its own. I am not sure whether argparse
 allows that or not. However, I feel like you should be able to nest subcommands within subcommands. The current implementation does not account for that. This probably would
 be a good thing to improve on as a lot of CLI command can nest commands.
 
