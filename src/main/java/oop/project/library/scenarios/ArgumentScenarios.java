@@ -1,5 +1,5 @@
 package oop.project.library.scenarios;
-import oop.project.library.command.Command;
+import oop.project.library.command.CommandParser;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -7,7 +7,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> add(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("add");
+            CommandParser parser = new CommandParser("add");
             parser.addArgument(int.class, "left");
             parser.addArgument(int.class, "right");
 
@@ -24,7 +24,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> sub(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("sub");
+            CommandParser parser = new CommandParser("sub");
             parser.addArgument(double.class,"left");
             parser.addArgument(double.class, "right");
 
@@ -41,7 +41,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> fizzbuzz(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("fizzbuzz");
+            CommandParser parser = new CommandParser("fizzbuzz");
             parser.addArgument(int.class, "number").range(1, 100);
 
             var namespace = parser.parseArgs(arguments);
@@ -56,7 +56,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("difficulty");
+            CommandParser parser = new CommandParser("difficulty");
             parser.addArgument(String.class, "difficulty").choices("easy", "normal", "hard", "peaceful");
 
             var namespace = parser.parseArgs(arguments);
@@ -71,7 +71,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> date(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("date");
+            CommandParser parser = new CommandParser("date");
             parser.addArgument(LocalDate.class, "date").parser(LocalDate::parse);
 
             var namespace = parser.parseArgs(arguments);
@@ -86,7 +86,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> bool(String arguments) throws RuntimeException {
         try {
-            Command parser = new Command("bool");
+            CommandParser parser = new CommandParser("bool");
             parser.addArgument(Boolean.class, "value");
 
             var namespace = parser.parseArgs(arguments);

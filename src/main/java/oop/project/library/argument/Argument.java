@@ -13,6 +13,10 @@ public class Argument<T> {
 
     private final String name;
     private final Class<T> type;
+    private T defaultValue;
+    private boolean defaultValueSet;
+    private T defaultFlagValue;
+    private boolean defaultFlagValueSet;
 
     // optional custom converter function for parsing
     private Function<String, T> converterFunction;
@@ -98,5 +102,38 @@ public class Argument<T> {
         if (type == Boolean.class || type == boolean.class) return s -> (T) parseBoolean(s);
 
         return null;
+    }
+
+    public Argument<T> setDefault(T defaultValue) {
+        // need to handle wrapper classes for int, double, boolean
+//        if (!defaultValue.getClass().equals(this.type)) {
+//            throw new IllegalArgumentException("Default value for argument " + name + " must be of type " + type.getSimpleName());
+//        }
+
+        this.defaultValue = defaultValue;
+        this.defaultValueSet = true;
+        return this;
+    }
+
+    public T getDefault() {
+        return defaultValue;
+    }
+
+    public boolean hasDefault() {
+        return defaultValueSet;
+    }
+
+    public Argument<T> setShortFlagDefault(T defaultValue) {
+        this.defaultFlagValue = defaultValue;
+        this.defaultFlagValueSet = true;
+        return this;
+    }
+
+    public T getShortFlagDefault() {
+        return defaultFlagValue;
+    }
+
+    public boolean hasShortFlagDefault() {
+        return defaultFlagValueSet;
     }
 }
