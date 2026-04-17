@@ -15,6 +15,10 @@ public class CommandParser {
             return parent.addArgument(type, dest);
         }
 
+        public Argument<String> addArgument(String... dest) {
+            return parent.addArgument(String.class, dest);
+        }
+
         public Subparser addSubparser() {
             return new Subparser(parent);
         }
