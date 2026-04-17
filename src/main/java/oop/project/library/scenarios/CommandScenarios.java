@@ -8,7 +8,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> mul(String arguments) throws RuntimeException {
        try {
-            Command parse = new Command("mul");
+            CommandParser parse = new CommandParser("mul");
             parse.addArgument(Integer.class, "left");
             parse.addArgument(Integer.class, "right");
 
@@ -24,7 +24,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> div(String arguments) throws RuntimeException {
         try {
-            Command parse = new Command("div");
+            CommandParser parse = new CommandParser("div");
             parse.addArgument(Double.class, "--left");
             parse.addArgument(Double.class, "--right");
 
@@ -40,7 +40,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> echo(String arguments) throws RuntimeException {
         try {
-            Command parse = new Command("echo");
+            CommandParser parse = new CommandParser("echo");
             parse.addArgument(String.class, "message").setDefault("echo,echo,echo...");
 
             var namespace = parse.parseArgs(arguments);
@@ -54,7 +54,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> search(String arguments) throws RuntimeException {
         try {
-            Command parse = new Command("search");
+            CommandParser parse = new CommandParser("search");
             parse.addArgument(String.class, "term");
             parse.addArgument(boolean.class, "--case-insensitive", "-i").setDefault(false);
 
@@ -69,12 +69,28 @@ public final class CommandScenarios {
     }
 
     public static Map<String, Object> dispatch(String arguments) throws RuntimeException {
-//        try {
-//
-//        } catch (RuntimeException e) {
-//            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
-//        }
-        throw new UnsupportedOperationException("TODO (MVP)");
+        try {
+            CommandParser parse = new CommandParser("dispatch");
+            Subparser subcommand = parse.addSubparser("type");
+            var staticType = subcommand.addParser("static");
+            staticType.addArgument(Integer.class, "value");
+
+            var dynamicType = subcommand.addParser("dynamic");
+            dynamicType.addArgument(String.class, "value");
+
+            // need to figure out how to get type
+
+            var namespace = parse.parseArgs(arguments);
+            var type = namespace.get("type", String.class);
+            if (type.equals("static")) {
+                var value = namespace.get(type, Namespace.class).get("value", Integer.class);
+                return Map.of("type", type, "value", value);
+            }
+            var value = namespace.get(type, Namespace.class).get("value", String.class);
+            return Map.of("type", type, "value", value);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid dispatch arguments: " + e.getMessage());
+        }
     }
 
 }
