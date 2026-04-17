@@ -51,10 +51,13 @@ One design aspect that we are unsure about is how to handle Enums as argparse4j 
 - The way that Argument is currently structured doesn't scale well for new features and methods. Every new "method" introduces new field members, type checking, and validation logic. While this is manageable for the current scope of the project, it isn't for larger libraries.
 
 ### Individual Review (Command Lead)
-
 #### Good Design Decisions
-- .
+- A good design decision is that the case sensitive can be applied to choices and enums. I think this was a good move as it allows the user to control how the arguments are 
+  parsed and handled. Having the default be set to true is also helpful as it provides structure and a fallback in case the user doesn't specify how it wants to handle casing. 
+  This can helpful when the CLI cares about casing or can interpret all versions as valid.
 #### Less-Good Design Decisions
-- .
+- No enforcement for min and max values. In the argument system, we never validate that min must be smaller or equal to max. This could also be a problem when we have choices 
+  and range being used for numeric types as what happens when I have choices that are not in the range. Is this at fault to the user implement or ours for not flagging this as 
+  a problem?
 ### Team Review
 .
