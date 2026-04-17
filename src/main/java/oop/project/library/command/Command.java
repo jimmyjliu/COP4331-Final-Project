@@ -35,7 +35,6 @@ public class Command {
         return this.namedArgs;
     }
 
-    // specific type
     public <T> Argument<T> addArgument(Class<T> type, String... dest) {
         if (dest.length == 0) {
             throw new IllegalArgumentException("Arguments cannot be empty");
@@ -46,9 +45,16 @@ public class Command {
             // short: a dash and one lower case letter
             // long: two dash, at least one more lower case letters use - to indicate spacing
         if (!(dest[0].matches("(-|--)[a-z]+(-[a-z]+)*"))) {
-            if(argNameExists(dest[0])) { // check to ensure name isn't being used already
+            if(argNameExists(dest[0])) {
+                // check to ensure name isn't being used already
                 throw new IllegalArgumentException("Argument " + dest[0] + " already exists");
             }
+
+            if(!subcommands.isEmpty()) {
+                // you can't have subcommands come before positionals
+                throw new IllegalStateException("Positional Arguments Must Be Declared Before Adding Any Subcommands.");
+            }
+
             // positional argument
             Argument<T> argument = new Argument<>(dest[0], type);
             if (dest.length > 1) {
@@ -84,11 +90,6 @@ public class Command {
             }
         }
         return argument;
-    }
-
-    // default -> handles it as a string
-    public Argument<String> addArgument(String... dest) {
-        return addArgument(String.class, dest);
     }
 
     private boolean argNameExists(String name) {

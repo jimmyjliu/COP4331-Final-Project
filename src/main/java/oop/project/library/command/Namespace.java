@@ -18,7 +18,7 @@ public class Namespace {
         Object value = values.get(name);
 
         if (!type.isInstance(value)) {
-            throw new RuntimeException("Argument " + name + " is not of type " + type.getSimpleName());
+            throw new RuntimeException("Argument '" + name + "' is not of type " + type.getSimpleName());
         }
 
         return type.cast(value);
