@@ -23,7 +23,7 @@ public class ArgParser {
         Map<String, Object> parsedArgs = new HashMap<>();
 
         // handle parent positional and find any subcommands
-        // subcommands will be disgused as positional arguments
+        // subcommands will be disguised as positional arguments
         int i = index;
         int pos = 0;
         while(i < args.positional().size()) {
@@ -31,6 +31,10 @@ public class ArgParser {
 
             if(parent.getSubcommands().containsKey(posArg)) {
                 break; // is a subcommand should be parsed as a subcommand
+            }
+            if(i > parent.getPositionalArgs().size()) {
+                // can't nested subcommands within each other
+                throw new ArgumentParseException("Expected " + parent.getPositionalArgs().size() + " arguments for '" + parent.getProgName() + "' but got " + args.positional().size());
             }
             Argument<?> arg = parent.getPositionalArgs().get(Integer.toString(pos));
             String rawValue = args.positional().get(i);
@@ -64,19 +68,25 @@ public class ArgParser {
             parsedArgs.put(parent.getSubcommandParsers().get(subName), subName);
 
             Namespace parsedSub = parseCommand(sub, args, i + 1);
-            // merge this namespace values with parsedArgs
+            // add the Namespace to the parseArgs
+            // to extract the values of the subcommand, must get the Namespace first then get the arguments looking for
             parsedArgs.put(subName, parsedSub);
         }
         return new Namespace(parsedArgs);
     }
 
     private void parseNamedArgs(Command parent, BasicArgs args, Map<String, Object> parsedArgs) {
-        // HAVE A FLAG
         if (!args.named().isEmpty()) {
             // find flag
             for (Map.Entry<String, String> entry : args.named().entrySet()) {
                 String flag = entry.getKey();
                 String rawValue = entry.getValue();
+
+                if(rawValue.isEmpty()) {
+                    // apply the short default
+                    applyShortDefault(flag, parent, parsedArgs);
+                    break;
+                }
 
                 Argument<?> argument = parent.getNamedAliases().get(flag);
 
@@ -99,8 +109,6 @@ public class ArgParser {
         }
     }
 
-
-
     private void applyDefault(Command parent, Map<String, Object> parsedArgs, int givenPositionalArgs) {
         // Apply Named Defaults
         for (Argument<?> arg : parent.getNamedArgs().values()) {
@@ -110,8 +118,6 @@ public class ArgParser {
                 }
             }
         }
-
-
 
         // Apply Positional Defaults
         for (int i = givenPositionalArgs; i < parent.getPositionalArgs().size(); i++) {
@@ -125,4 +131,17 @@ public class ArgParser {
         }
     }
 
+    private void applyShortDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
+        if(parent.getNamedAliases().containsKey(rawValue)) {
+            for (Argument<?> arg : parent.getNamedArgs().values()) {
+                if (!parsedArgs.containsKey(arg.getName())) {
+                    if (arg.hasShortFlagDefault()) {
+                        parsedArgs.put(arg.getName(), arg.getShortFlagDefault());
+                    }
+                }
+            }
+        } else {
+            throw new ArgumentParseException("Named flag '" + rawValue + "' is not a valid named argument/alias for '" + parent.getProgName() + "'.");
+        }
+    }
 }
