@@ -103,7 +103,7 @@ public class Argument<T> {
     }
 
     public Argument<T> setDefault(T defaultValue) {
-        if (defaultValue != null && defaultValue.getClass() == this.type) {
+        if (defaultValue.getClass() != this.type) {
             throw new IllegalArgumentException("Default value for argument " + name + " must be of type " + type.getSimpleName());
         }
 
