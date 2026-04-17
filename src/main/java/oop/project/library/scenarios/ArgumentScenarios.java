@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 public final class ArgumentScenarios {
+    enum Difficulty { PEACEFUL, EASY, NORMAL, HARD };
 
     public static Map<String, Object> add(String arguments) throws RuntimeException {
         try {
@@ -57,11 +58,26 @@ public final class ArgumentScenarios {
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("difficulty");
-            parser.addArgument(String.class, "difficulty").choices("easy", "normal", "hard", "peaceful");
+            parser.addArgument(String.class, "difficulty").choices("easy", "normal", "hard", "peaceful").caseSensitive(false);
 
             var namespace = parser.parseArgs(arguments);
 
             String difficulty = namespace.get("difficulty", String.class);
+
+            return Map.of("difficulty", difficulty);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid difficulty arguments: " + e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> enums(String arguments) throws RuntimeException {
+        try {
+            CommandParser parser = new CommandParser("enums");
+            parser.addArgument(Difficulty.class, "difficulty").caseSensitive(false);
+
+            var namespace = parser.parseArgs(arguments);
+
+            Difficulty difficulty = namespace.get("difficulty", Difficulty.class);
 
             return Map.of("difficulty", difficulty);
         } catch (RuntimeException e) {
@@ -99,4 +115,18 @@ public final class ArgumentScenarios {
         }
     }
 
+    public static Map<String, Object> regex(String arguments) throws RuntimeException {
+        try {
+            CommandParser parser = new CommandParser("regex");
+            parser.addArgument(String.class,"input").regex("[A-Z]+-[IV]+").caseSensitive(false);
+
+            var namespace = parser.parseArgs(arguments);
+
+            String input = namespace.get("input", String.class);
+
+            return Map.of("input", input);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid regex arguments: " + e.getMessage());
+        }
+    }
 }
