@@ -4,30 +4,87 @@ Handles creation of creation command structures and multi-argument parsing.
 
 ## Development Notes
 Running log of design decisions, tradeoffs, and other observations.
-- Using a map to store the named arguments
-  - If a named argument has multiple long and/or short flags, then each will map to the first flag that appeared when arguments were given.
-  - The first flag provided takes precedence
-  - For the map, it will remove the starting dash (i.e. `-` or `--`) as when the arguments are passed in they only give the name part not the dashes
-- Throwing illegal argument exceptions when trying to construct an argument
-  - This occurs when multiple positional arguments are given
-  - This occurs when a named argument is provided but the following argument is not a named (i.e. positional)
-- Created a default for addArguments
-  - The default will handle the type as a string
-- parseArgs function
-  - throw exception if number of positional arguments doesn't match expected number
-  - First will handle positional arguments
-    - Will check if it handles the conversion correctly
-    - If not, throws an ArgumentParseException
-  - Then handles named arguments if any exist
-    - Check the mapping
-    - Right now it does not confirm that the number of named arguments exist
-      - Two Reasons:
-        1) The map contains duplicates for the same named argument (i.e. long and short flags that do the same thing)
-        2) I believe this will prepare me to handle the case of defaults when that part arrives
-      - However, I am considering having another map of total named arguments as how will I know if a default needs to be used or not
+- Refactored the Command System
+  - Now Classes have specific responsibilities and the logic is not intertwined in one class only
+  - Command Class
+    - Handles Building Commands
+      - This is what the user calls to add arguments and build properties of it
+    - Adding Arguments and Subcommands
+    - Using a map to store the named arguments
+      - If a named argument has multiple long and/or short flags, then each will map to the first flag that appeared when arguments were given.
+      - The first flag provided takes precedence
+      - For the map, it will remove the starting dash (i.e. `-` or `--`) as when the arguments are passed in they only give the name part not the dashes
+    - Added having a set to track all the argument names
+      - ensures that a user cannot use the same name for positional and named.
+      - must be unique. however, a subcommand should be able to use the same as a the parent command
+  - ArgParser Class
+    - Handles all the parsing logic of the given user CLI input
+    - Will set defaults, parse positional, handle subcommands, and parse named
+    - Throwing illegal argument exceptions when trying to construct an argument
+      - This occurs when multiple positional arguments are given
+      - This occurs when a named argument is provided but the following argument is not a named (i.e. positional)
+    - parseArgs function
+      - has 4 stages
+        - handling current commands positional arguments first
+          - when a subcommand is found, it breaks out of the loop and continues on
+        - handling named arguments
+          - inside of here, it will set the short flag defaults
+        - applying any defaults
+          - this is for non-present positional and named arguments
+        - handling subcommand
+          - gets to subcommand and runs parseArgs on it
+          - will return the namespace of the resulting parse for the subcommand
+  - Subparser Class
+    - Created when a user wants a subcommand
+  - CommandParser Class
+    - This is what the user will interact with to create a command
+    - Created a default for addArguments
+      - The default will handle the type as a string
+
+## MVP Design Analysis
+### Individual Review (Command Lead)
+#### Good Design Decisions
+- I finally realized that Command needed to be separated by responsibilities. In the PoC, I had my Command Class doing everything from adding arguments to parsing. Although I 
+  was able to implement all the functionality for the MVP under the single class. It just got messy when dealing with subcommand. I realized I should separate responsibilities 
+  and have specific classes to handle different jobs. For example, ArgParser handles all the parsing and creating the namespace while Command handles building arguments and 
+  storing subcommands. Each class has a purpose and how it interacts as a whole. The user will never interact with ArgParser as they
+  just need to call parse from the CommandParser class which then calls the ArgParser functions (makes it simpler for the user and they don't have to understand how everything 
+  works to use it). It is now much cleaner and easier to follow how things flow. 
+- For subcommands, I created a list to track which commands belong to which subparsers. I thought this was a smart decision as now we can easily identify which subcommand was 
+  used per subparser and get all the necessary arguments it may contain. When having a subparser, to get argument values from the subcommand, the user must identify the 
+  subcommand called and get it's namespace then they will have to get the necessary arguments. This allows the user to handle different cases where values might be different types.
+- Subcommands and commands can have the same argument values. This is a good decision as the two are not necessarily related in terms of the arguments and how they could be 
+  used functionally.
+#### Bad Design Decisions
+- A potentially poor design decision on my end is that `parseCommand(Command parent, BasicArgs args, int index)` takes in an integer value index to know where in the positional 
+  arguments of the basic args. This could be considered a poor design choice as I really should not pass in index and set my i value to index. The reason behind this is that it 
+  is poor management of handling the positional args list as this index value will control the subcommands state, and we don't likely know when arguments are consumed. This 
+  could also introduce a small error where if the indexing is off, then the entire program is off. This actually is a problem I ran into when trying to get the Argument for a 
+  positional as for a subcommand, I tried using index but that wasn't the true positional value. Thus, I had to introduce another variable to track the positions of the actual 
+  argument not throughout the entire command. I likely could have used like a lexer structure to allow me to peek and pop. However, I did not feel like implementing that and 
+  was not really sure whether that was the right approach.
+- Potential confusion on how to implement subcommands and chaining of commands. I currently feel like the logic to have mutliple subcommands in use on a single command is not 
+  clear. Although you can add subparsers, I am not too confident in whether chaining commands from two subparsers logically works and whether the code accounts for that. Right 
+  now, it will throw an error if more positionals follow a given subcommand and there is no way for a subcommand to know whether it belongs to other subparsers' subcommands. I 
+  think this would be confusing for users and does not handle the subcommands the best. 
+### Individual Review (Argument Lead)
+
+#### Good Design Decision
+- The separation of concerns for the command system is more clear and understandable. With the introduction of subcommands, the design choice to break down the original single command class follows the Single responsibility principle of SOLID.
+
+#### Bad Design Decision
+- It isn't completely clear (unless of a user consults documentation) how "retrieval" of flags works. If a user defines a named argument with both a short and long flag, retrieval of the argument from the namespace is dependent on the first flag provided which many not be completely obvious to the user. Additionally, there isn't a descriptive error that is thrown that explains this behavior.
+
+### Team Review
+#### Design Decision Disagreement
+- One disagreement we had is that we don't fully agree on how the developer should be retrieving named args. Currently, the command system requires that you retrieve the argument value using the first flag provided whereas argparse4j does the verbose flag.
+
+#### Concern to Improve
+- Subcommands cannot have their own subcommands. I currently believe the design does not permit a subcommand to have subcommands of its own. I am not sure whether argparse
+allows that or not. However, I feel like you should be able to nest subcommands within subcommands. The current implementation does not account for that. This probably would
+be a good thing to improve on as a lot of CLI command can nest commands.
 
 ## PoC Design Analysis
-
 ### Individual Review (Command Lead)
 #### Good Design Decisions
 - When a named argument has multiple short and long flags, I decided to map it to the same argument.

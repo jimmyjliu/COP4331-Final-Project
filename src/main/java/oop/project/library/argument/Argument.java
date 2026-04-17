@@ -194,11 +194,6 @@ public class Argument<T> {
     }
 
     public Argument<T> setDefault(T defaultValue) {
-        // need to handle wrapper classes for int, double, boolean
-//        if (!defaultValue.getClass().equals(this.type)) {
-//            throw new IllegalArgumentException("Default value for argument " + name + " must be of type " + type.getSimpleName());
-//        }
-
         this.defaultValue = defaultValue;
         this.defaultValueSet = true;
         return this;
