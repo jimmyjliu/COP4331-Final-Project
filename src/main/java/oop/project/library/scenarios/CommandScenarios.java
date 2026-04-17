@@ -56,7 +56,7 @@ public final class CommandScenarios {
         try {
             CommandParser parse = new CommandParser("search");
             parse.addArgument(String.class, "term");
-            parse.addArgument(boolean.class, "--case-insensitive", "-i").setDefault(false);
+            parse.addArgument(Boolean.class, "--case-insensitive", "-i").setDefault(false).setShortFlagDefault(true);
 
             var namespace = parse.parseArgs(arguments);
             var term = namespace.get("term", String.class);
@@ -78,8 +78,6 @@ public final class CommandScenarios {
             var dynamicType = subcommand.addParser("dynamic");
             dynamicType.addArgument(String.class, "value");
 
-            // need to figure out how to get type
-
             var namespace = parse.parseArgs(arguments);
             var type = namespace.get("type", String.class);
             if (type.equals("static")) {
@@ -93,4 +91,41 @@ public final class CommandScenarios {
         }
     }
 
+    public static Map<String, Object> nested(String arguments) throws RuntimeException {
+        try {
+            CommandParser parse = new CommandParser("nested");
+            Subparser subcommand = parse.addSubparser("type");
+            var staticType = subcommand.addParser("static");
+            staticType.addArgument(String.class, "value");
+            var dynamicType = subcommand.addParser("dynamic");
+            dynamicType.addArgument(String.class, "value");
+
+            Subparser other = parse.addSubparser("other");
+            var otro = other.addParser("otro");
+            otro.addArgument(String.class, "blah");
+
+            parse.addArgument("-flag", "--f");
+            var namespace = parse.parseArgs(arguments);
+
+            var otherType = namespace.get("other", String.class);
+            var otroValue = namespace.get("otro", Namespace.class).get("blah", String.class);
+
+            return Map.of("other", otherType, "otro",  otroValue);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid nested arguments: " + e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> coffee(String arguments) throws RuntimeException {
+        try {
+            CommandParser parse = new CommandParser("coffee");
+            parse.addArgument(String.class, "--beans").choices("dark", "light", "medium").setDefault("LIGHT").setShortFlagDefault("none");
+            var namespace = parse.parseArgs(arguments);
+
+            var beans = namespace.get("beans", String.class);
+            return Map.of("beans", beans);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid coffee arguments: " + e.getMessage());
+        }
+    }
 }
