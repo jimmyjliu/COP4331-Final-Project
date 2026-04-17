@@ -1,8 +1,6 @@
 package oop.project.library.command;
 
 import oop.project.library.argument.*;
-import oop.project.library.input.BasicArgs;
-import oop.project.library.input.Input;
 
 import java.util.*;
 
@@ -11,14 +9,18 @@ public class Command {
     private final Map<String, Argument<?>> positionalArgs;
     private final Map<String, Argument<?>> namedArgs;
     private Map<String, Argument<?>> namedAliases = new HashMap<>();
+    private final Map<String, Command> subcommands;
+    private final Map<String, String> subcommandParsers;
 
     private final Set<String> argumentNames;
 
     public Command(String progName) {
         this.progName = progName;
+        this.subcommandParsers = new HashMap<>();
         this.positionalArgs = new HashMap<>();
         this.namedArgs = new HashMap<>();
         this.argumentNames = new HashSet<>();
+        this.subcommands = new HashMap<>();
     }
 
     public String getProgName() {
@@ -93,107 +95,26 @@ public class Command {
         return this.argumentNames.contains(name);
     }
 
-    public Namespace parseArgs(String arguments) throws RuntimeException {
-        Input lexer = new Input(arguments);
-
-        BasicArgs args = lexer.parseBasicArgs();
-        System.out.println(args.toString());
-        System.out.println("POSITIONAL ARGUMENTS: " + args.positional().toString());
-        System.out.println("NAMED ARGUMENTS: " + args.named().toString());
-
-        Map<String, Object> parsedArgs = new HashMap<>();
-
-        int givenPositionalArgs = args.positional().size();
-        int totalPositionalArgs = getPositionalArgs().size();
-        int posDefaults = countPosDefaults();
-        int requiredPositionalArgs = totalPositionalArgs - posDefaults;
-
-        if (givenPositionalArgs < requiredPositionalArgs) {
-            throw new ArgumentParseException("Expected at least " + requiredPositionalArgs + " positional arguments but got " + givenPositionalArgs);
-        }
-
-        if(givenPositionalArgs > totalPositionalArgs) {
-            throw new ArgumentParseException("Expected " + totalPositionalArgs + " positional arguments but got " + givenPositionalArgs);
-        }
-
-        // Parse USER input positional
-        for (int i = 0; i < givenPositionalArgs; i++) {
-            Argument<?> arg = getPositionalArgs().get(Integer.toString(i));
-            String rawValue = args.positional().get(i);
-
-            Object convertedValue;
-
-            try {
-                convertedValue = arg.parse(rawValue);
-            }  catch (ArgumentParseException | IllegalStateException e) {
-                // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
-                throw e;
-            } catch (Exception e) {
-                throw new ArgumentParseException("Failed to convert argument '" + arg.getName() + "' with value '" + rawValue + "' to type " + arg.getType().getSimpleName(), e);
-            }
-
-            parsedArgs.put(arg.getName(), convertedValue);
-        }
-
-        // Apply Positional Defaults
-        for (int i = givenPositionalArgs; i < getPositionalArgs().size(); i++) {
-            Argument<?> arg = getPositionalArgs().get(Integer.toString(i));
-
-            if (arg.getDefault() != null) {
-                parsedArgs.put(arg.getName(), arg.getDefault());
-            } else {
-                throw new ArgumentParseException("Missing required positional argument " + arg.getName());
-            }
-        }
-
-        // HAVE A FLAG
-        if (!args.named().isEmpty()) {
-            // find flag
-            for (Map.Entry<String, String> entry : args.named().entrySet()) {
-                String flag = entry.getKey();
-                String rawValue = entry.getValue();
-
-                Argument<?> argument = namedAliases.get(flag);
-
-                if (argument == null) {
-                    throw new ArgumentParseException("Named argument '" + flag + "' is not a valid argument.");
-                }
-
-                Object convertedValue;
-                try {
-                    // FlagDefault if empty
-                    convertedValue = argument.parse(rawValue);
-                }  catch (ArgumentParseException | IllegalStateException e) {
-                    // ArgumentParseException -> CLI/user facing. IllegalStateException -> dev facing (missing parsing function)
-                    throw e;
-                } catch (Exception e) {
-                    throw new ArgumentParseException("Failed to convert argument '" + argument.getName() + "' with value '" + rawValue + "' to type " + argument.getType().getSimpleName(),
-                            e);
-                }
-                parsedArgs.put(argument.getName(), convertedValue);
-            }
-        }
-
-        // Apply Named Defaults
-        for (Argument<?> arg : namedArgs.values()) {
-            if (!parsedArgs.containsKey(arg.getName())) {
-                if (arg.hasDefault()) {
-                    parsedArgs.put(arg.getName(), arg.getDefault());
-                }
-            }
-        }
-
-        return new Namespace(parsedArgs);
+    public void addSubCommand(String command, String subParserName) {
+        this.subcommandParsers.put(command, subParserName);
+        Command subCommand = new Command(command);
+        this.subcommands.put(command, subCommand);
     }
 
-    private int countPosDefaults() {
-        int count = 0;
-        for (int i = 0; i < getPositionalArgs().size(); i++) {
-            Argument<?> arg = getPositionalArgs().get(Integer.toString(i));
-            if (arg.hasDefault()) {
-                count++;
-            }
-        }
-        return count;
+    public void addSubCommand(Command command, String subParserName) {
+        this.subcommandParsers.put(command.getProgName(), subParserName);
+        this.subcommands.put(command.getProgName(), command);
+    }
+
+    public Map<String, Argument<?>> getNamedAliases() {
+        return this.namedAliases;
+    }
+
+    public Map<String, Command> getSubcommands() {
+        return this.subcommands;
+    }
+
+    public Map<String, String> getSubcommandParsers() {
+        return this.subcommandParsers;
     }
 }
