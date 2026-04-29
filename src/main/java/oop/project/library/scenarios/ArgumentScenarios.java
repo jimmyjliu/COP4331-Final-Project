@@ -1,4 +1,6 @@
 package oop.project.library.scenarios;
+import oop.project.library.argument.ArgumentParseException;
+import oop.project.library.command.CommandConfigurationException;
 import oop.project.library.command.CommandParser;
 import java.time.LocalDate;
 import java.util.Map;
@@ -18,8 +20,10 @@ public final class ArgumentScenarios {
             Integer right = namespace.get("right", Integer.class);
 
             return Map.of("left", left, "right", right);
-        } catch (RuntimeException e) { // todo consider not catching runtime (use something more specific)
-            throw new RuntimeException("Invalid add arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -35,8 +39,10 @@ public final class ArgumentScenarios {
             Double right = namespace.get("right", Double.class);
 
             return Map.of("left", left, "right", right);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid sub arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -50,8 +56,10 @@ public final class ArgumentScenarios {
             Integer number = namespace.get("number", Integer.class);
 
             return Map.of("number", number);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid fizzbuzz arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -65,8 +73,10 @@ public final class ArgumentScenarios {
             String difficulty = namespace.get("difficulty", String.class);
 
             return Map.of("difficulty", difficulty);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid difficulty arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -80,8 +90,10 @@ public final class ArgumentScenarios {
             Difficulty difficulty = namespace.get("difficulty", Difficulty.class);
 
             return Map.of("difficulty", difficulty);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid difficulty arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -95,8 +107,10 @@ public final class ArgumentScenarios {
             LocalDate date = namespace.get("date", LocalDate.class);
 
             return Map.of("date", date);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid date arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -110,8 +124,10 @@ public final class ArgumentScenarios {
             Boolean value = namespace.get("value", Boolean.class);
 
             return Map.of("value", value);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid bool arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 
@@ -125,8 +141,10 @@ public final class ArgumentScenarios {
             String input = namespace.get("input", String.class);
 
             return Map.of("input", input);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid regex arguments: " + e.getMessage());
+        } catch (CommandConfigurationException e) {
+            throw new CommandConfigurationException("Invalid mul arguments: " + e.getMessage());
+        } catch (ArgumentParseException e) {
+            throw new ArgumentParseException("Invalid mul arguments: " + e.getMessage());
         }
     }
 }
