@@ -32,7 +32,7 @@ public class ArgParser {
             if(parent.getSubcommands().containsKey(posArg)) {
                 break; // is a subcommand should be parsed as a subcommand
             }
-            if(i > parent.getPositionalArgs().size()) {
+            if(pos >= parent.getPositionalArgs().size()) {
                 // can't nested subcommands within each other
                 throw new ArgumentParseException("Expected " + parent.getPositionalArgs().size() + " arguments for '" + parent.getProgName() + "' but got " + args.positional().size());
             }
