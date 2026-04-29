@@ -18,7 +18,7 @@ public class Argument<T> {
     private T defaultFlagValue;
     private boolean defaultFlagValueSet;
 
-    // Custom converter function for parsing. Provided by default for supported argument types
+    // Custom converter function for parsing. Provided by default for supported argument types (Boolean, Double, Integer, Enum, String)
     private Function<String, T> converterFunction;
 
     // optional for choices validation
@@ -37,13 +37,27 @@ public class Argument<T> {
         return type;
     }
 
-    // method to provide a set of valid choices for the argument.
+    /**
+     * Sets the valid choices for this argument.
+     * If set, an ArgumentParseException will be thrown at runtime if the parsed value is not in the specified choices.
+     *
+     * @param choices the valid choices for this argument {@code choices("foo", "bar", "baz")}
+     * @return {@code Argument<T>} to allow for method chaining
+     *
+     */
     public Argument<T> choices(T... choices) {
         this.choices = Set.of(choices);
         return this;
     }
 
-    // method to set custom converter function for parsing
+    /**
+     * Sets the converter function for parsing the argument from a raw string.
+     * Must be specified for custom argument types
+     *
+     * @param converterFunction the function that converts a raw string to the argument type T
+     * @return {@code Argument<T>} to allow for method chaining
+     *
+     */
     public Argument<T> parser(Function<String, T> converterFunction) {
         this.converterFunction = converterFunction;
         return this;
@@ -76,6 +90,13 @@ public class Argument<T> {
         return value;
     }
 
+    /**
+     * Sets the default value for this argument. If the argument is not provided at runtime, the default value will be used.
+     *
+     * @param defaultValue the default value for this argument
+     * @return {@code Argument<T>} to allow for method chaining
+     *
+     */
     public Argument<T> setDefault(T defaultValue) {
         this.defaultValue = defaultValue;
         this.defaultValueSet = true;
@@ -90,6 +111,13 @@ public class Argument<T> {
         return defaultValueSet;
     }
 
+    /**
+     * Sets the default value for this argument when the flag is present but no value is provided.
+     *
+     * @param defaultValue the default value for this argument when the flag is present but no value is provided. EX: "add --verbose" would set the "verbose" flag to true by default if this method is called with true.
+     * @return {@code Argument<T>} to allow for method chaining
+     *
+     */
     public Argument<T> setFlagPresentDefault(T defaultValue) {
         this.defaultFlagValue = defaultValue;
         this.defaultFlagValueSet = true;
