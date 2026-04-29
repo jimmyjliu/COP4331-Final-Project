@@ -10,15 +10,24 @@ public class Namespace {
         this.values = values;
     }
 
-    public <T> T get(String name, Class<T> type) throws RuntimeException {
+    /**
+     * Retrieves the value of the argument with the specified name and type. If the argument is not found or is not of the expected type, a CommandConfigurationException is thrown.
+     *
+     * @param name the name of the argument to retrieve
+     * @param type the expected type of the argument value
+     * @return the value of the argument cast to the specified type
+     * @throws CommandConfigurationException if the argument is not found or is not of the expected
+     *
+     */
+    public <T> T get(String name, Class<T> type) throws CommandConfigurationException {
         if (!values.containsKey(name)) {
-            throw new RuntimeException("Argument " + name + " not found");
+            throw new CommandConfigurationException("Argument " + name + " not found");
         }
 
         Object value = values.get(name);
 
         if (!type.isInstance(value)) {
-            throw new RuntimeException("Argument '" + name + "' is not of type " + type.getSimpleName());
+            throw new CommandConfigurationException("Argument '" + name + "' is not of type " + type.getSimpleName());
         }
 
         return type.cast(value);
