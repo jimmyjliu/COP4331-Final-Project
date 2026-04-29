@@ -9,8 +9,8 @@ public final class CommandScenarios {
     public static Map<String, Object> mul(String arguments) throws RuntimeException {
        try {
             CommandParser parse = new CommandParser("mul");
-            parse.addArgument(Integer.class, "left");
-            parse.addArgument(Integer.class, "right");
+            parse.addArgument("left").asInteger();
+            parse.addArgument("right").asInteger();
 
             var namespace = parse.parseArgs(arguments);
 
@@ -25,8 +25,8 @@ public final class CommandScenarios {
     public static Map<String, Object> div(String arguments) throws RuntimeException {
         try {
             CommandParser parse = new CommandParser("div");
-            parse.addArgument(Double.class, "--left");
-            parse.addArgument(Double.class, "--right");
+            parse.addArgument("--left").asDouble();
+            parse.addArgument("--right").asDouble();
 
             var namespace = parse.parseArgs(arguments);
 
@@ -41,7 +41,7 @@ public final class CommandScenarios {
     public static Map<String, Object> echo(String arguments) throws RuntimeException {
         try {
             CommandParser parse = new CommandParser("echo");
-            parse.addArgument(String.class, "message").setDefault("echo,echo,echo...");
+            parse.addArgument("message").asString().setDefault("echo,echo,echo...");
 
             var namespace = parse.parseArgs(arguments);
 
@@ -55,8 +55,8 @@ public final class CommandScenarios {
     public static Map<String, Object> search(String arguments) throws RuntimeException {
         try {
             CommandParser parse = new CommandParser("search");
-            parse.addArgument(String.class, "term");
-            parse.addArgument(Boolean.class, "--case-insensitive", "-i").setDefault(false).setShortFlagDefault(true);
+            parse.addArgument("term").asString();
+            parse.addArgument("--case-insensitive", "-i").asBoolean().setDefault(false).setShortFlagDefault(true);
 
             var namespace = parse.parseArgs(arguments);
             var term = namespace.get("term", String.class);
@@ -73,10 +73,10 @@ public final class CommandScenarios {
             CommandParser parse = new CommandParser("dispatch");
             Subparser subcommand = parse.addSubparser("type");
             var staticType = subcommand.addParser("static");
-            staticType.addArgument(Integer.class, "value");
+            staticType.addArgument("value").asInteger();
 
             var dynamicType = subcommand.addParser("dynamic");
-            dynamicType.addArgument(String.class, "value");
+            dynamicType.addArgument("value").asInteger();
 
             var namespace = parse.parseArgs(arguments);
             var type = namespace.get("type", String.class);
@@ -96,13 +96,13 @@ public final class CommandScenarios {
             CommandParser parse = new CommandParser("nested");
             Subparser subcommand = parse.addSubparser("type");
             var staticType = subcommand.addParser("static");
-            staticType.addArgument(String.class, "value");
+            staticType.addArgument("value").asString();
             var dynamicType = subcommand.addParser("dynamic");
-            dynamicType.addArgument(String.class, "value");
+            dynamicType.addArgument("value").asString();
 
             Subparser other = parse.addSubparser("other");
             var otro = other.addParser("otro");
-            otro.addArgument(String.class, "blah");
+            otro.addArgument("blah").asString();
 
             parse.addArgument("-flag", "--f");
             var namespace = parse.parseArgs(arguments);
@@ -119,7 +119,7 @@ public final class CommandScenarios {
     public static Map<String, Object> coffee(String arguments) throws RuntimeException {
         try {
             CommandParser parse = new CommandParser("coffee");
-            parse.addArgument(String.class, "--beans").choices("dark", "light", "medium").setDefault("LIGHT").setShortFlagDefault("none");
+            parse.addArgument("--beans").asString().choices("dark", "light", "medium").setDefault("LIGHT").setShortFlagDefault("none");
             var namespace = parse.parseArgs(arguments);
 
             var beans = namespace.get("beans", String.class);
