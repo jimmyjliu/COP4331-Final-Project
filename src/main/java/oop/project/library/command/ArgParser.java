@@ -63,9 +63,9 @@ public class ArgParser {
 
         // Handle Subcommands
         if (i < args.positional().size()) {
-            String subName = args.positional().get(i);
-            Command sub = parent.getSubcommands().get(subName);
-            parsedArgs.put(parent.getSubcommandParsers().get(subName), subName);
+            String subName = args.positional().get(i); // subcommand name
+            Command sub = parent.getSubcommands().get(subName); // getting the subcommand that exists
+            parsedArgs.put(parent.getSubProgName(), subName);
 
             Namespace parsedSub = parseCommand(sub, args, i + 1);
             // add the Namespace to the parseArgs
@@ -84,11 +84,11 @@ public class ArgParser {
 
                 if(rawValue.isEmpty()) {
                     // apply the short default
-                    applyShortDefault(flag, parent, parsedArgs);
+                    applyFlagPresentDefault(flag, parent, parsedArgs);
                     break;
                 }
 
-                Argument<?> argument = parent.getNamedAliases().get(flag);
+                Argument<?> argument = parent.getNamedArgs().get(flag);
 
                 if (argument == null) {
                     throw new ArgumentParseException("Named argument '" + flag + "' is not a valid argument for '" +  parent.getProgName() + "'.");
@@ -131,8 +131,8 @@ public class ArgParser {
         }
     }
 
-    private void applyShortDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
-        if(parent.getNamedAliases().containsKey(rawValue)) {
+    private void applyFlagPresentDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
+        if(parent.getNamedArgs().containsKey(rawValue)) {
             for (Argument<?> arg : parent.getNamedArgs().values()) {
                 if (!parsedArgs.containsKey(arg.getName())) {
                     if (arg.hasShortFlagDefault()) {

@@ -6,25 +6,44 @@ import java.util.*;
 
 public class Command {
     private final String progName;
-    private final Map<String, Argument<?>> positionalArgs;
-    private final Map<String, Argument<?>> namedArgs;
-    private Map<String, Argument<?>> namedAliases = new HashMap<>();
-    private final Map<String, Command> subcommands;
-    private final Map<String, String> subcommandParsers;
+    private final Command parent;
 
-    private final Set<String> argumentNames;
+    private String subProgName = "";
+    private final Map<String, Command> subcommands = new HashMap<>();
+
+    private final Map<String, Argument<?>> positionalArgs = new HashMap<>();
+    private final Map<String, Argument<?>> namedArgs = new HashMap<>();
+    private final Set<String> allArgNames  = new HashSet<>();
 
     public Command(String progName) {
         this.progName = progName;
-        this.subcommandParsers = new HashMap<>();
-        this.positionalArgs = new HashMap<>();
-        this.namedArgs = new HashMap<>();
-        this.argumentNames = new HashSet<>();
-        this.subcommands = new HashMap<>();
+        this.parent = null;
+    }
+
+    public Command(String progName, Command parent) {
+        this.progName = progName;
+        this.parent = parent;
+
     }
 
     public String getProgName() {
         return this.progName;
+    }
+
+    public Command getParent() {
+        return parent;
+    }
+
+    public String getSubProgName() {
+        return this.subProgName;
+    }
+
+    public boolean isRoot() {
+        return parent == null;
+    }
+
+    public Map<String, Command> getSubcommands() {
+        return subcommands;
     }
 
     public Map<String, Argument<?>> getPositionalArgs() {
@@ -37,31 +56,31 @@ public class Command {
 
     public <T> Argument<T> addArgument(Class<T> type, String... dest) {
         if (dest.length == 0) {
-            throw new IllegalArgumentException("Arguments cannot be empty");
+            throw new CommandConfigurationException("Arguments cannot be empty.");
         }
 
         // check the string
         // flags:
             // short: a dash and one lower case letter
             // long: two dash, at least one more lower case letters use - to indicate spacing
-        if (!(dest[0].matches("(-|--)[a-z]+(-[a-z]+)*"))) {
+        if (!isValidFlag(dest[0])) {
             if(argNameExists(dest[0])) {
                 // check to ensure name isn't being used already
-                throw new IllegalArgumentException("Argument " + dest[0] + " already exists");
+                throw new CommandConfigurationException("Argument " + dest[0] + " already exists");
             }
 
             if(!subcommands.isEmpty()) {
                 // you can't have subcommands come before positionals
-                throw new IllegalStateException("Positional Arguments Must Be Declared Before Adding Any Subcommands.");
+                throw new CommandConfigurationException("Positional Arguments Must Be Declared Before Adding Any Subcommands.");
             }
 
             // positional argument
             Argument<T> argument = new Argument<>(dest[0], type);
             if (dest.length > 1) {
-                throw new IllegalArgumentException("Positional arguments cannot be more than one argument");
+                throw new CommandConfigurationException("Positional arguments cannot be more than one argument");
             }
             this.positionalArgs.put(Integer.toString(positionalArgs.size()), argument);
-            this.argumentNames.add(argument.getName());
+            this.allArgNames.add(argument.getName());
             return argument;
         }
 
@@ -70,52 +89,41 @@ public class Command {
         String name = dest[0].replaceFirst("^-+", "");
 
         if(argNameExists(name)) { // check to ensure name isn't being used already
-            throw new IllegalArgumentException("Argument " + name + " already exists");
+            throw new CommandConfigurationException("Argument " + name + " already exists");
         }
         Argument<T> argument = new Argument<>(name, type);
         this.namedArgs.put(argument.getName(), argument);
-        this.namedAliases.put(argument.getName(), argument);
-        this.argumentNames.add(name);
+        this.allArgNames.add(name);
 
         for (int i = 1; i < dest.length; i++) {
-            if (dest[i].matches("(-|--)[a-z]+(-[a-z]+)*")) {
+            if (isValidFlag(dest[i])) {
                 name = dest[i].replaceFirst("^-+", "");
                 if(argNameExists(name)) {
-                    throw new IllegalArgumentException("Argument " + name + " already exists");
+                    throw new CommandConfigurationException("Argument " + name + " already exists");
                 }
-                this.namedAliases.put(name, argument);
-                this.argumentNames.add(name);
+                this.namedArgs.put(name, argument);
+                this.allArgNames.add(name);
             } else {
-                throw new IllegalArgumentException(dest[i] + "is not a named argument (missing flag notation - or --).");
+                throw new CommandConfigurationException(dest[i] + "is not a named argument (missing flag notation - or --).");
             }
         }
         return argument;
     }
 
     private boolean argNameExists(String name) {
-        return this.argumentNames.contains(name);
+        return this.allArgNames.contains(name);
     }
 
-    public void addSubCommand(String command, String subParserName) {
-        this.subcommandParsers.put(command, subParserName);
-        Command subCommand = new Command(command);
-        this.subcommands.put(command, subCommand);
+    // Subcommands
+    public Command addSubCommand(String command, String subParserName) {
+        subProgName = subParserName;
+        Command child = new Command(command, this);
+        subcommands.put(command, child);
+        return child;
     }
 
-    public void addSubCommand(Command command, String subParserName) {
-        this.subcommandParsers.put(command.getProgName(), subParserName);
-        this.subcommands.put(command.getProgName(), command);
-    }
-
-    public Map<String, Argument<?>> getNamedAliases() {
-        return this.namedAliases;
-    }
-
-    public Map<String, Command> getSubcommands() {
-        return this.subcommands;
-    }
-
-    public Map<String, String> getSubcommandParsers() {
-        return this.subcommandParsers;
+    // Validation
+    private boolean isValidFlag(String flag) {
+        return flag.matches("(-|--)[a-z]+(-[a-z]+)*");
     }
 }
