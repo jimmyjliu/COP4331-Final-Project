@@ -18,7 +18,7 @@ public final class ArgumentScenarios {
             Integer right = namespace.get("right", Integer.class);
 
             return Map.of("left", left, "right", right);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException e) { // todo consider not catching runtime (use something more specific)
             throw new RuntimeException("Invalid add arguments: " + e.getMessage());
         }
     }

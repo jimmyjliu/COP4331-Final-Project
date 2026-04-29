@@ -56,7 +56,7 @@ public class Command {
             }
 
             // positional argument
-            Argument<T> argument = new Argument<>(dest[0], type);
+            Argument<T> argument = ArgumentFactory.create(dest[0], type);
             if (dest.length > 1) {
                 throw new IllegalArgumentException("Positional arguments cannot be more than one argument");
             }
@@ -72,7 +72,7 @@ public class Command {
         if(argNameExists(name)) { // check to ensure name isn't being used already
             throw new IllegalArgumentException("Argument " + name + " already exists");
         }
-        Argument<T> argument = new Argument<>(name, type);
+        Argument<T> argument = ArgumentFactory.create(name, type);
         this.namedArgs.put(argument.getName(), argument);
         this.namedAliases.put(argument.getName(), argument);
         this.argumentNames.add(name);
