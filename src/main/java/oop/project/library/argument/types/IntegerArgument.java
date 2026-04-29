@@ -1,4 +1,7 @@
-package oop.project.library.argument;
+package oop.project.library.argument.types;
+
+import oop.project.library.argument.Argument;
+import oop.project.library.argument.ArgumentParseException;
 
 public class IntegerArgument extends Argument<Integer> {
     // optional min/max values for range validation
@@ -10,11 +13,21 @@ public class IntegerArgument extends Argument<Integer> {
         parser(Integer::parseInt);
     }
 
-    // method to set range for integers
+    /**
+     * Sets a range for valid integer values, range inclusive.
+     * min must be less than max otherwise an exception will be thrown
+     * An ArgumentParseException will be thrown at runtime if the parsed integer is outside the specified range.
+     *
+     * @param min the minimum integer
+     * @param max the maximum integer (inclusive)
+     * @return IntegerArgument to allow for method chaining
+     * @throws IllegalStateException if the method is passed with a max value less than min
+     *
+     */
     public IntegerArgument range(int min, int max) {
-        // runtime, user facing error message
+        // runtime, dev facing error message
         if (max < min) {
-            throw new ArgumentParseException("Invalid range for argument " + getName() + ": max value " + max + " is less than min value " + min);
+            throw new IllegalStateException("Invalid range for argument " + getName() + ": max value " + max + " is less than min value " + min);
         }
 
         this.minValue = min;

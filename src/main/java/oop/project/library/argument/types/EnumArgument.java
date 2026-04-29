@@ -1,4 +1,6 @@
-package oop.project.library.argument;
+package oop.project.library.argument.types;
+
+import oop.project.library.argument.Argument;
 
 public class EnumArgument<E extends Enum<E>> extends Argument<E> {
     private boolean caseSensitive = true;

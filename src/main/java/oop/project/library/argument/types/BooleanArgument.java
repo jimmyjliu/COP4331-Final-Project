@@ -1,6 +1,8 @@
-package oop.project.library.argument;
+package oop.project.library.argument.types;
 
-public class BooleanArgument extends Argument<Boolean>{
+import oop.project.library.argument.Argument;
+
+public class BooleanArgument extends Argument<Boolean> {
 
     public BooleanArgument(String name) {
         super(name, Boolean.class);

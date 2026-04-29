@@ -1,8 +1,11 @@
-package oop.project.library.argument;
+package oop.project.library.argument.types;
+
+import oop.project.library.argument.Argument;
+import oop.project.library.argument.ArgumentParseException;
 
 import java.util.regex.Pattern;
 
-public class StringArgument extends Argument<String>{
+public class StringArgument extends Argument<String> {
     // optional for regex validation
     private String regex;
     private Pattern pattern;

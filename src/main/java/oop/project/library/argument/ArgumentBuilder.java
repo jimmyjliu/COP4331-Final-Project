@@ -1,5 +1,6 @@
 package oop.project.library.argument;
 
+import oop.project.library.argument.types.*;
 import oop.project.library.command.Command;
 
 public class ArgumentBuilder {
