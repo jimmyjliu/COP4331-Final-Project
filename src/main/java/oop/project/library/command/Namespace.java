@@ -10,7 +10,7 @@ public class Namespace {
         this.values = values;
     }
 
-    public <T> T get(String name, Class<T> type) throws RuntimeException {
+    public <T> T get(String name, Class<T> type) throws CommandConfigurationException {
         if (!values.containsKey(name)) {
             throw new CommandConfigurationException("Argument " + name + " not found");
         }

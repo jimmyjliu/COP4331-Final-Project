@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ArgParser {
-    public Namespace parse(Command parent, String rawArguments) throws RuntimeException {
+    public Namespace parse(Command parent, String rawArguments) throws ArgumentParseException {
         BasicArgs args = tokenizeArguments(rawArguments);
         return parseCommand(parent, args, 0);
     }
@@ -174,8 +174,8 @@ public class ArgParser {
         if(parent.getNamedArgs().containsKey(rawValue)) {
             for (Argument<?> arg : parent.getNamedArgs().values()) {
                 if (!parsedArgs.containsKey(arg.getName())) {
-                    if (arg.hasShortFlagDefault()) {
-                        parsedArgs.put(arg.getName(), arg.getShortFlagDefault());
+                    if (arg.hasFlagPresentDefault()) {
+                        parsedArgs.put(arg.getName(), arg.getFlagPresentDefault());
                     }
                 }
             }

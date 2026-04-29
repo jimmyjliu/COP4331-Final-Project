@@ -32,9 +32,9 @@ public class CommandParser {
          *
          * @param arguments the raw CLI command arguments provided
          * @return a Namespace containing the parsed arguments values
-         * @throws RuntimeException if parsing fails or an argument value is invalid
+         * @throws ArgumentParseException if parsing fails or an argument value is invalid
          * */
-        public Namespace parseArgs(String arguments) throws RuntimeException {
+        public Namespace parseArgs(String arguments) throws ArgumentParseException {
             return parser.parse(parent, arguments);
         }
 }
