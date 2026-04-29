@@ -19,6 +19,19 @@ public class ArgParser {
         return lexer.parseBasicArgs();
     }
 
+    /**
+     * Recursively parse a command and any nested subcommands starting at a given positional index.
+     * Positional Arguments are matched in the order of declaration (first come, first served) until
+     * a known subcommand is encountered. Named arguments are then parsed along with default values being applied
+     * for both positional and named arguments. Any remaining parts are parsed as a part of the subcommand.
+     *
+     * @param parent the command definition currently being parsed
+     * @param args the tokenized command-line input
+     * @param index the starting positional argument index
+     * @return a Namespace containing parsed values for this command and any subcommands
+     * @throws ArgumentParseException if argument conversion fails, too many positional arguments are supplied,
+     *          or required values are missing
+     * */
     private Namespace parseCommand(Command parent, BasicArgs args, int index) {
         Map<String, Object> parsedArgs = new HashMap<>();
 
@@ -75,6 +88,16 @@ public class ArgParser {
         return new Namespace(parsedArgs);
     }
 
+
+    /**
+     * Parses all named arguments for the current command and stores converted commands in the parse arguments map
+     * If named arg is present without value, the argument's flag-present default is used if applicable.
+     *
+     * @param parent the command definition currently being parsed
+     * @param args the tokenized command-line input
+     * @param parsedArgs the map of already parsed arguments for the command
+     * @throws ArgumentParseException if unknown named argument is provided, or value cannot be converted to required type
+     * */
     private void parseNamedArgs(Command parent, BasicArgs args, Map<String, Object> parsedArgs) {
         if (!args.named().isEmpty()) {
             // find flag
@@ -109,6 +132,14 @@ public class ArgParser {
         }
     }
 
+    /**
+     * Applies default values for any missing positional and named arguments of the current command
+     *
+     * @param parent the command definition currently having defaults applied
+     * @param parsedArgs the map of already parsed arguments for the command
+     * @param givenPositionalArgs the integer value of the number of Positional Arguments provided by the CLI input
+     * @throws ArgumentParseException if a required positional argument is missing
+     * */
     private void applyDefault(Command parent, Map<String, Object> parsedArgs, int givenPositionalArgs) {
         // Apply Named Defaults
         for (Argument<?> arg : parent.getNamedArgs().values()) {
@@ -131,6 +162,14 @@ public class ArgParser {
         }
     }
 
+    /**
+     * Applies the default value associated with a named argument when the flag is present without an explicit value.
+     *
+     * @param rawValue the supplied flag name
+     * @param parent the command which the named argument belongs to
+     * @param parsedArgs the parsed argument map to update
+     * @throws ArgumentParseException if the supplied flag is not valid for the current command
+     * */
     private void applyFlagPresentDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
         if(parent.getNamedArgs().containsKey(rawValue)) {
             for (Argument<?> arg : parent.getNamedArgs().values()) {
