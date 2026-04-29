@@ -124,11 +124,11 @@ public class Argument<T> {
         return this;
     }
 
-    public T getShortFlagDefault() {
+    public T getFlagPresentDefault() {
         return defaultFlagValue;
     }
 
-    public boolean hasShortFlagDefault() {
+    public boolean hasFlagPresentDefault() {
         return defaultFlagValueSet;
     }
 }

@@ -54,6 +54,12 @@ public class Command {
         return this.namedArgs;
     }
 
+    /**
+     * Adding typed argument to the given command
+     * @param dest the destination names for the argument; either a single positional name (i.e. checkout)
+     *             or one or more named arguments such as -v or --verbose
+     * @return the created ArgumentBuilder used to configure the argument
+     * */
     public ArgumentBuilder addArgument(String... dest) {
         return new ArgumentBuilder(this, dest);
     }
@@ -63,7 +69,7 @@ public class Command {
             throw new CommandConfigurationException("Arguments cannot be empty.");
         }
 
-        // if named argument, first flag has precedence
+        // if named argument, first flag has precedence for the argument being created
         if (isNamedArg(dest[0])) {
             return dest[0].replaceFirst("^-+", "");
         }
@@ -75,8 +81,8 @@ public class Command {
     private boolean isNamedArg(String dest) {
         // check the string
         // flags:
-        // short: a dash and one lower case letter
-        // long: two dash, at least one more lower case letters use - to indicate spacing
+            // short: a dash and one lower case letter
+            // long: two dash, at least one more lower case letters use - to indicate spacing
         return dest.matches("(-|--)[a-z]+(-[a-z]+)*");
     }
 
@@ -97,6 +103,14 @@ public class Command {
         return argument;
     }
 
+    /**
+     * Adds a positional argument to this command
+     * @param argument the positional argument object to be added to the command
+     * @param dest the name of the positional argument
+     * @throws CommandConfigurationException if the name already exists as an argument,
+     *          more than one destination name is supplied, or subcommands have already been added
+     * @see #addArgument(String...)
+     * */
     private void addPositionalArgument(Argument<?> argument, String... dest) {
         if (argNameExists(dest[0])) {
             // check to ensure name isn't being used already
@@ -104,7 +118,7 @@ public class Command {
         }
 
         if (!subcommands.isEmpty()) {
-            // you can't have subcommands come before positionals
+            // you can't have subcommands come before positional
             throw new CommandConfigurationException("Positional Arguments Must Be Declared Before Adding Any Subcommands.");
         }
 
@@ -116,6 +130,14 @@ public class Command {
         this.allArgNames.add(argument.getName());
     }
 
+    /**
+     * Add one or more named arguments to this command
+     * @param argument the named argument object to be added to the command
+     * @param dest the name(s) of the named argument; can accept multiple names
+     * @throws CommandConfigurationException if the name already exists as an argument or
+     *          not using flag notation
+     * @see #addArgument(String...)
+     * */
     private void addNamedArgument(Argument<?> argument, String... dest) {
         // Named Argument
         // if there is a single or double, could be multiple strings. THE FIRST FLAG has precedence
@@ -130,7 +152,7 @@ public class Command {
         this.allArgNames.add(name);
 
         for (int i = 1; i < dest.length; i++) {
-            if (isValidFlag(dest[i])) {
+            if (isNamedArg(dest[i])) {
                 name = dest[i].replaceFirst("^-+", "");
                 if(argNameExists(name)) {
                     throw new CommandConfigurationException("Argument " + name + " already exists");
@@ -144,19 +166,16 @@ public class Command {
     }
 
     private boolean argNameExists(String name) {
+        // confirms the argument name is not already a part of the command
         return this.allArgNames.contains(name);
     }
 
     // Subcommands
     public Command addSubCommand(String command, String subParserName) {
+        // adds subcommands to the current command
         subProgName = subParserName;
         Command child = new Command(command, this);
         subcommands.put(command, child);
         return child;
-    }
-
-    // Validation
-    private boolean isValidFlag(String flag) {
-        return flag.matches("(-|--)[a-z]+(-[a-z]+)*");
     }
 }

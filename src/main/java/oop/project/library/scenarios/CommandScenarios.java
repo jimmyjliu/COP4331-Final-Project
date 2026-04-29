@@ -86,6 +86,8 @@ public final class CommandScenarios {
             var dynamicType = parse.addSubCommand("dynamic", "type");
             dynamicType.addArgument("value").asString();
 
+            parse.addArgument("test").asInteger();
+
             var namespace = parse.parseArgs(arguments);
             var type = namespace.get("type", String.class);
             if (type.equals("static")) {

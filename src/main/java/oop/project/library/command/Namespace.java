@@ -19,7 +19,7 @@ public class Namespace {
      * @throws CommandConfigurationException if the argument is not found or is not of the expected
      *
      */
-    public <T> T get(String name, Class<T> type) throws RuntimeException {
+    public <T> T get(String name, Class<T> type) throws CommandConfigurationException {
         if (!values.containsKey(name)) {
             throw new CommandConfigurationException("Argument " + name + " not found");
         }
