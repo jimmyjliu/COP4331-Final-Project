@@ -2,6 +2,7 @@ package oop.project.library.command;
 
 import oop.project.library.argument.*;
 
+// Facade - hides the complexity and implementation from the user
 public class CommandParser {
         private final ArgParser parser;
         private final Command parent;
@@ -15,12 +16,8 @@ public class CommandParser {
             return parent.addArgument(dest);
         }
 
-        public Subparser addSubparser() {
-            return new Subparser(parent);
-        }
-
-        public Subparser addSubparser(String progName) {
-            return new Subparser(parent, progName);
+        public Command addSubCommand(String command, String subProgName) {
+            return parent.addSubCommand(command, subProgName);
         }
 
         public Namespace parseArgs(String arguments) throws RuntimeException {

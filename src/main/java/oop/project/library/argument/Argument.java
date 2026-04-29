@@ -90,7 +90,7 @@ public class Argument<T> {
         return defaultValueSet;
     }
 
-    public Argument<T> setShortFlagDefault(T defaultValue) {
+    public Argument<T> setFlagPresentDefault(T defaultValue) {
         this.defaultFlagValue = defaultValue;
         this.defaultFlagValueSet = true;
         return this;
