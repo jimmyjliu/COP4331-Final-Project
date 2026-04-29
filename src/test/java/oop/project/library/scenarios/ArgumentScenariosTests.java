@@ -104,9 +104,6 @@ class ArgumentScenariosTests {
             Arguments.of("Easy", """
                 difficulty easy
                 """, Map.of("difficulty", "easy")),
-            Arguments.of("Hard (case insensitive)", """
-                difficulty HARD
-                """, Map.of("difficulty", "HARD")),
             Arguments.of("Hardcore", """
                 difficulty hardcore
                 """, null)

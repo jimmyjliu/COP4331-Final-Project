@@ -1,6 +1,6 @@
 package oop.project.library.command;
 
-import oop.project.library.argument.Argument;
+import oop.project.library.argument.*;
 
 public class CommandParser {
         private final ArgParser parser;
@@ -17,6 +17,26 @@ public class CommandParser {
 
         public Argument<String> addArgument(String... dest) {
             return parent.addArgument(String.class, dest);
+        }
+
+        public IntegerArgument addIntegerArgument(String... dest) {
+            return parent.addIntegerArgument(dest);
+        }
+
+        public DoubleArgument addDoubleArgument(String... dest) {
+            return parent.addDoubleArgument(dest);
+        }
+
+        public StringArgument addStringArgument(String... dest) {
+            return parent.addStringArgument(dest);
+        }
+
+        public BooleanArgument addBooleanArgument(String... dest) {
+            return parent.addBooleanArgument(dest);
+        }
+
+        public <E extends Enum<E>> EnumArgument<E> addEnumArgument(Class<E> type, String... dest) {
+            return parent.addEnumArgument(type, dest);
         }
 
         public Subparser addSubparser() {

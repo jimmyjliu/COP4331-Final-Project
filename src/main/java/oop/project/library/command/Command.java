@@ -92,6 +92,26 @@ public class Command {
         return argument;
     }
 
+    public IntegerArgument addIntegerArgument(String... dest) {
+        return addArgumentObject(new IntegerArgument(getArgName(dest)), dest);
+    }
+
+    public DoubleArgument addDoubleArgument(String... dest) {
+        return addArgumentObject(new DoubleArgument(getArgName(dest)), dest);
+    }
+
+    public StringArgument addStringArgument(String... dest) {
+        return addArgumentObject(new StringArgument(getArgName(dest)), dest);
+    }
+
+    public BooleanArgument addBooleanArgument(String... dest) {
+        return addArgumentObject(new BooleanArgument(getArgName(dest)), dest);
+    }
+
+    public <E extends Enum<E>> EnumArgument<E> addEnumArgument(Class<E> type, String... dest) {
+        return addArgumentObject(new EnumArgument<>(getArgName(dest), type), dest);
+    }
+
     private boolean argNameExists(String name) {
         return this.argumentNames.contains(name);
     }
@@ -117,5 +137,83 @@ public class Command {
 
     public Map<String, String> getSubcommandParsers() {
         return this.subcommandParsers;
+    }
+
+    private String getArgName(String... dest) {
+        if (dest.length == 0) {
+            throw new IllegalArgumentException("Arguments cannot be empty");
+        }
+
+        if (isNamedArg(dest[0])) {
+            return dest[0].replaceFirst("^-+", "");
+        }
+
+        return dest[0];
+    }
+
+    private boolean isNamedArg(String dest) {
+        return dest.matches("(-|--)[a-z]+(-[a-z]+)*");
+    }
+
+    private <A extends Argument<?>> A addArgumentObject(A argument, String... dest) {
+        if (dest.length == 0) {
+            throw new IllegalArgumentException("Arguments cannot be empty");
+        }
+
+        if (!isNamedArg(dest[0])) {
+            addPositionalArgument(argument, dest);
+            return argument;
+        }
+
+        addNamedArgument(argument, dest);
+        return argument;
+    }
+
+    private void addPositionalArgument(Argument<?> argument, String... dest) {
+        if (argNameExists(dest[0])) {
+            throw new IllegalArgumentException("Argument " + dest[0] + " already exists");
+        }
+
+        if (!subcommands.isEmpty()) {
+            throw new IllegalStateException(
+                    "Positional Arguments Must Be Declared Before Adding Any Subcommands."
+            );
+        }
+
+        if (dest.length > 1) {
+            throw new IllegalArgumentException("Positional arguments cannot be more than one argument");
+        }
+
+        this.positionalArgs.put(Integer.toString(positionalArgs.size()), argument);
+        this.argumentNames.add(argument.getName());
+    }
+
+    private void addNamedArgument(Argument<?> argument, String... dest) {
+        String name = dest[0].replaceFirst("^-+", "");
+
+        if (argNameExists(name)) {
+            throw new IllegalArgumentException("Argument " + name + " already exists");
+        }
+
+        this.namedArgs.put(argument.getName(), argument);
+        this.namedAliases.put(argument.getName(), argument);
+        this.argumentNames.add(name);
+
+        for (int i = 1; i < dest.length; i++) {
+            if (!isNamedArg(dest[i])) {
+                throw new IllegalArgumentException(
+                        dest[i] + " is not a named argument (missing flag notation - or --)."
+                );
+            }
+
+            name = dest[i].replaceFirst("^-+", "");
+
+            if (argNameExists(name)) {
+                throw new IllegalArgumentException("Argument " + name + " already exists");
+            }
+
+            this.namedAliases.put(name, argument);
+            this.argumentNames.add(name);
+        }
     }
 }

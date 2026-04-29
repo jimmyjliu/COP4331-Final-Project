@@ -11,7 +11,7 @@ public class IntegerArgument extends Argument<Integer> {
     }
 
     // method to set range for integers
-    public Argument<Integer> range(int min, int max) {
+    public IntegerArgument range(int min, int max) {
         // runtime, user facing error message
         if (max < min) {
             throw new ArgumentParseException("Invalid range for argument " + getName() + ": max value " + max + " is less than min value " + min);

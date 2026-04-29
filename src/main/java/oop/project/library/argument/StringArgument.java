@@ -7,14 +7,19 @@ public class StringArgument extends Argument<String>{
     private String regex;
     private Pattern pattern;
 
+    // optional for case insensitivity
+    private boolean caseSensitive = true;
+
     public StringArgument(String name) {
         super(name, String.class);
+        parser(String::toString);
     }
 
     // method for setting a regex String
-    public Argument<String> regex(String s) {
+    public StringArgument regex(String s) {
         try {
-            pattern = Pattern.compile(s);
+            int flags = caseSensitive ? 0 : Pattern.CASE_INSENSITIVE;
+            pattern = Pattern.compile(s, flags);
             this.regex = s;
             return this;
         }

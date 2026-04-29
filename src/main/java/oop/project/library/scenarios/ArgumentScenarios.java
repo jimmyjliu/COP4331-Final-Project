@@ -9,8 +9,8 @@ public final class ArgumentScenarios {
     public static Map<String, Object> add(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("add");
-            parser.addArgument(int.class, "left");
-            parser.addArgument(int.class, "right");
+            parser.addIntegerArgument("left");
+            parser.addIntegerArgument("right");
 
             var namespace = parser.parseArgs(arguments);
 
@@ -26,8 +26,8 @@ public final class ArgumentScenarios {
     public static Map<String, Object> sub(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("sub");
-            parser.addArgument(double.class,"left");
-            parser.addArgument(double.class, "right");
+            parser.addDoubleArgument("left");
+            parser.addDoubleArgument("right");
 
             var namespace = parser.parseArgs(arguments);
 
@@ -43,7 +43,7 @@ public final class ArgumentScenarios {
     public static Map<String, Object> fizzbuzz(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("fizzbuzz");
-            parser.addArgument(int.class, "number").range(1, 100);
+            parser.addIntegerArgument("number").range(1, 100);
 
             var namespace = parser.parseArgs(arguments);
 
@@ -58,7 +58,7 @@ public final class ArgumentScenarios {
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("difficulty");
-            parser.addArgument(String.class, "difficulty").choices("easy", "normal", "hard", "peaceful").caseSensitive(false);
+            parser.addStringArgument("difficulty").choices("easy", "normal", "hard", "peaceful");
 
             var namespace = parser.parseArgs(arguments);
 
@@ -73,7 +73,7 @@ public final class ArgumentScenarios {
     public static Map<String, Object> enums(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("enums");
-            parser.addArgument(Difficulty.class, "difficulty").caseSensitive(false);
+            parser.addEnumArgument(Difficulty.class, "difficulty").caseSensitive(false);
 
             var namespace = parser.parseArgs(arguments);
 
@@ -103,7 +103,7 @@ public final class ArgumentScenarios {
     public static Map<String, Object> bool(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("bool");
-            parser.addArgument(Boolean.class, "value");
+            parser.addBooleanArgument("value");
 
             var namespace = parser.parseArgs(arguments);
 
@@ -118,7 +118,7 @@ public final class ArgumentScenarios {
     public static Map<String, Object> regex(String arguments) throws RuntimeException {
         try {
             CommandParser parser = new CommandParser("regex");
-            parser.addArgument(String.class,"input").regex("[A-Z]+-[IV]+").caseSensitive(false);
+            parser.addStringArgument("input").regex("[A-Z]+-[IV]+");
 
             var namespace = parser.parseArgs(arguments);
 

@@ -11,7 +11,7 @@ public class DoubleArgument extends Argument<Double>{
     }
 
     // method to set range for doubles
-    public Argument<Double> range(double min, double max) {
+    public DoubleArgument range(double min, double max) {
         // runtime, user facing error message
         if (max < min) {
             throw new ArgumentParseException("Invalid range for argument " + getName() + ": max value " + max + " is less than min value " + min);
