@@ -49,7 +49,7 @@ public class ArgParser {
                 // can't nested subcommands within each other
                 throw new ArgumentParseException("Expected " + parent.getNumPositional() + " arguments for '" + parent.getProgName() + "' but got " + args.positional().size());
             }
-            Argument<?> arg = parent.getAllArgNames().get(Integer.toString(pos));
+            Argument<?> arg = parent.getAllArguments().get(Integer.toString(pos));
             String rawValue = args.positional().get(i);
 
             Object convertedValue;
@@ -111,7 +111,7 @@ public class ArgParser {
                     break;
                 }
 
-                Argument<?> argument = parent.getAllArgNames().get(flag);
+                Argument<?> argument = parent.getAllArguments().get(flag);
 
                 if (argument == null) {
                     throw new ArgumentParseException("Named argument '" + flag + "' is not a valid argument for '" +  parent.getProgName() + "'.");
@@ -142,7 +142,7 @@ public class ArgParser {
      * */
     private void applyDefault(Command parent, Map<String, Object> parsedArgs, int givenPositionalArgs) {
         // Apply Named Defaults
-        for (Argument<?> arg : parent.getAllArgNames().values()) {
+        for (Argument<?> arg : parent.getAllArguments().values()) {
             if (!parsedArgs.containsKey(arg.getName())) {
                 if (arg.hasDefault()) {
                     parsedArgs.put(arg.getName(), arg.getDefault());
@@ -152,7 +152,7 @@ public class ArgParser {
 
         // Apply Positional Defaults
         for (int i = givenPositionalArgs; i < parent.getNumPositional(); i++) {
-            Argument<?> arg = parent.getAllArgNames().get(Integer.toString(i));
+            Argument<?> arg = parent.getAllArguments().get(Integer.toString(i));
 
             if (arg.getDefault() != null) {
                 parsedArgs.put(arg.getName(), arg.getDefault());
@@ -171,8 +171,8 @@ public class ArgParser {
      * @throws ArgumentParseException if the supplied flag is not valid for the current command
      * */
     private void applyFlagPresentDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
-        if(parent.getAllArgNames().containsKey(rawValue)) {
-            for (Argument<?> arg : parent.getAllArgNames().values()) {
+        if(parent.getAllArguments().containsKey(rawValue)) {
+            for (Argument<?> arg : parent.getAllArguments().values()) {
                 if (!parsedArgs.containsKey(arg.getName())) {
                     if (arg.hasFlagPresentDefault()) {
                         parsedArgs.put(arg.getName(), arg.getFlagPresentDefault());

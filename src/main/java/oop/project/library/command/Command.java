@@ -12,7 +12,7 @@ public class Command {
     private String subProgName = "";
     private final Map<String, Command> subcommands = new HashMap<>();
 
-    private final Map<String, Argument<?>> allArgNames = new HashMap<>();
+    private final Map<String, Argument<?>> allArguments = new HashMap<>();
     private int numPositional = 0; // tracks the number of positionals in the map for this command
 
     public Command(String progName) {
@@ -47,8 +47,8 @@ public class Command {
         return subcommands;
     }
 
-    public Map<String, Argument<?>> getAllArgNames() {
-        return allArgNames;
+    public Map<String, Argument<?>> getAllArguments() {
+        return allArguments;
     }
 
     public int getNumPositional() {
@@ -127,7 +127,7 @@ public class Command {
             throw new CommandConfigurationException("Positional arguments cannot be more than one argument");
         }
 
-        this.allArgNames.put(Integer.toString(numPositional), argument);
+        this.allArguments.put(Integer.toString(numPositional), argument);
         this.numPositional++;
     }
 
@@ -149,7 +149,7 @@ public class Command {
             throw new CommandConfigurationException("Argument " + name + " already exists");
         }
 
-        this.allArgNames.put(argument.getName(), argument);
+        this.allArguments.put(argument.getName(), argument);
 
         for (int i = 1; i < dest.length; i++) {
             if (isNamedArg(dest[i])) {
@@ -157,7 +157,7 @@ public class Command {
                 if(argNameExists(name)) {
                     throw new CommandConfigurationException("Argument " + name + " already exists");
                 }
-                this.allArgNames.put(name, argument);
+                this.allArguments.put(name, argument);
             } else {
                 throw new CommandConfigurationException(dest[i] + "is not a named argument (missing flag notation - or --).");
             }
@@ -166,7 +166,7 @@ public class Command {
 
     private boolean argNameExists(String name) {
         // confirms the argument name is not already a part of the command
-        return this.allArgNames.containsKey(name);
+        return this.allArguments.containsKey(name);
     }
 
     // Subcommands
