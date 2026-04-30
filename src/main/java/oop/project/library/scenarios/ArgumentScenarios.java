@@ -1,7 +1,7 @@
 package oop.project.library.scenarios;
 import oop.project.library.argument.ArgumentParseException;
 import oop.project.library.command.CommandConfigurationException;
-import oop.project.library.command.CommandParser;
+import oop.project.library.command.Command;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -10,7 +10,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> add(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("add");
+            Command parser = new Command("add");
             parser.addArgument("left").asInteger();
             parser.addArgument("right").asInteger();
 
@@ -29,7 +29,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> sub(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("sub");
+            Command parser = new Command("sub");
             parser.addArgument("left").asDouble();
             parser.addArgument("right").asDouble();
 
@@ -48,7 +48,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> fizzbuzz(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("fizzbuzz");
+            Command parser = new Command("fizzbuzz");
             parser.addArgument("number").asInteger().range(1, 100);
 
             var namespace = parser.parseArgs(arguments);
@@ -65,7 +65,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> difficulty(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("difficulty");
+            Command parser = new Command("difficulty");
             parser.addArgument("difficulty").asString().choices("easy", "normal", "hard", "peaceful");
 
             var namespace = parser.parseArgs(arguments);
@@ -82,7 +82,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> enums(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("enums");
+            Command parser = new Command("enums");
             parser.addArgument("difficulty").asEnum(Difficulty.class).caseSensitive(false);
 
             var namespace = parser.parseArgs(arguments);
@@ -99,7 +99,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> date(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("date");
+            Command parser = new Command("date");
             parser.addArgument("date").as(LocalDate.class).parser(LocalDate::parse);
 
             var namespace = parser.parseArgs(arguments);
@@ -116,7 +116,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> bool(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("bool");
+            Command parser = new Command("bool");
             parser.addArgument("value").asBoolean();
 
             var namespace = parser.parseArgs(arguments);
@@ -133,7 +133,7 @@ public final class ArgumentScenarios {
 
     public static Map<String, Object> regex(String arguments) throws RuntimeException {
         try {
-            CommandParser parser = new CommandParser("regex");
+            Command parser = new Command("regex");
             parser.addArgument("input").asString().regex("[A-Z]+-[IV]+");
 
             var namespace = parser.parseArgs(arguments);
