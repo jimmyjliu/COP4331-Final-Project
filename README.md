@@ -5,6 +5,8 @@ CLI Arg parsing framework for Java
 - Java 17+
 - Gradle
 
+## How to Use the Library
+
 ## Feature Showcase
 ### Arguments
 

@@ -4,25 +4,39 @@ Handles creation of creation command structures and multi-argument parsing.
 
 ## Development Notes
 Running log of design decisions, tradeoffs, and other observations.
-- Refactored the Command System
-  - Now Classes have specific responsibilities and the logic is not intertwined in one class only
+- The Command System
+  - Classes have specific responsibilities and the logic is not intertwined in one class only
   - Command Class
     - Handles Building Commands
       - This is what the user calls to add arguments and build properties of it
     - Adding Arguments and Subcommands
-    - Using a map to store the named arguments
+      - Adding Arguments will route to the positional function or the named function based on the values parses
+        - Will call the Argument Builder (see argument system for details)
+      - Subcommands get added to map that will track the command name and the command itself
+        - New subcommands will set the parent command to the current command when constructed
+    - Using a map to store the arguments
       - If a named argument has multiple long and/or short flags, then each will map to the first flag that appeared when arguments were given.
       - The first flag provided takes precedence
       - For the map, it will remove the starting dash (i.e. `-` or `--`) as when the arguments are passed in they only give the name part not the dashes
-    - Added having a set to track all the argument names
       - ensures that a user cannot use the same name for positional and named.
       - must be unique. however, a subcommand should be able to use the same as a the parent command
+    - Throws CommandConfigurationExceptions errors when
+      - Argument value in addArgument is empty
+      - The name already exists as an argument
+      - More than one destination name is supplied for positional arguments
+      - Subcommands have already been added when adding a positional argument
+      - Not using flag notation to notate a named argument
   - ArgParser Class
     - Handles all the parsing logic of the given user CLI input
     - Will set defaults, parse positional, handle subcommands, and parse named
-    - Throwing illegal argument exceptions when trying to construct an argument
-      - This occurs when multiple positional arguments are given
-      - This occurs when a named argument is provided but the following argument is not a named (i.e. positional)
+    - Throwing argumentParseException errors when
+      - More positional arguments are given compared to the actual number that should exist in a command
+      - A named argument is provided but the following argument is not a named (i.e. positional)
+      - Argument conversion fails
+      - An argument value is invalid
+      - Required arguments (positional) are missing
+      - Unknown named argument is provided
+        - Supplied flag is not valid for the current command
     - parseArgs function
       - has 4 stages
         - handling current commands positional arguments first
@@ -34,12 +48,13 @@ Running log of design decisions, tradeoffs, and other observations.
         - handling subcommand
           - gets to subcommand and runs parseArgs on it
           - will return the namespace of the resulting parse for the subcommand
-  - Subparser Class
-    - Created when a user wants a subcommand
-  - CommandParser Class
-    - This is what the user will interact with to create a command
-    - Created a default for addArguments
-      - The default will handle the type as a string
+  - Removed CommandParser and SubcommandParser Classes
+    - CommandParser basically wrapped the ArgParser and Command class together to make it easier for a developer to use
+    - However, it seemed to just add another layer that wasn't needed. Thus, it was removed.
+    - SubcommandParser was removed as there was an alternative way to store the subcommands within the command class
+  - Reduced the number of mappings needed
+    - Originally had multiple maps to store positional, named, and both types of arguments
+    - Now, there is just one map that stores all arguments and a counter to track how many positionals a command should have
 
 ## MVP Design Analysis
 ### Individual Review (Command Lead)
