@@ -7,23 +7,24 @@ import java.util.*;
 public class Command {
     private final String progName;
     private final Command parent;
+    private final ArgParser parser;
 
     private String subProgName = "";
     private final Map<String, Command> subcommands = new HashMap<>();
 
-    private final Map<String, Argument<?>> positionalArgs = new HashMap<>();
-    private final Map<String, Argument<?>> namedArgs = new HashMap<>();
-    private final Set<String> allArgNames  = new HashSet<>();
+    private final Map<String, Argument<?>> allArguments = new HashMap<>();
+    private int numPositional = 0; // tracks the number of positionals in the map for this command
 
     public Command(String progName) {
         this.progName = progName;
         this.parent = null;
+        this.parser = new ArgParser();
     }
 
     public Command(String progName, Command parent) {
         this.progName = progName;
         this.parent = parent;
-
+        this.parser = new ArgParser();
     }
 
     public String getProgName() {
@@ -46,12 +47,12 @@ public class Command {
         return subcommands;
     }
 
-    public Map<String, Argument<?>> getPositionalArgs() {
-        return this.positionalArgs;
+    public Map<String, Argument<?>> getAllArguments() {
+        return allArguments;
     }
 
-    public Map<String, Argument<?>> getNamedArgs() {
-        return this.namedArgs;
+    public int getNumPositional() {
+        return numPositional;
     }
 
     /**
@@ -126,8 +127,8 @@ public class Command {
             throw new CommandConfigurationException("Positional arguments cannot be more than one argument");
         }
 
-        this.positionalArgs.put(Integer.toString(positionalArgs.size()), argument);
-        this.allArgNames.add(argument.getName());
+        this.allArguments.put(Integer.toString(numPositional), argument);
+        this.numPositional++;
     }
 
     /**
@@ -148,8 +149,7 @@ public class Command {
             throw new CommandConfigurationException("Argument " + name + " already exists");
         }
 
-        this.namedArgs.put(argument.getName(), argument);
-        this.allArgNames.add(name);
+        this.allArguments.put(argument.getName(), argument);
 
         for (int i = 1; i < dest.length; i++) {
             if (isNamedArg(dest[i])) {
@@ -157,8 +157,7 @@ public class Command {
                 if(argNameExists(name)) {
                     throw new CommandConfigurationException("Argument " + name + " already exists");
                 }
-                this.namedArgs.put(name, argument);
-                this.allArgNames.add(name);
+                this.allArguments.put(name, argument);
             } else {
                 throw new CommandConfigurationException(dest[i] + "is not a named argument (missing flag notation - or --).");
             }
@@ -167,7 +166,7 @@ public class Command {
 
     private boolean argNameExists(String name) {
         // confirms the argument name is not already a part of the command
-        return this.allArgNames.contains(name);
+        return this.allArguments.containsKey(name);
     }
 
     // Subcommands
@@ -177,5 +176,17 @@ public class Command {
         Command child = new Command(command, this);
         subcommands.put(command, child);
         return child;
+    }
+
+    /**
+     * Parses the given CLI input for this CommandParser.
+     * Subcommands are stored as a nested {@link Namespace} inside parent.
+     *
+     * @param arguments the raw CLI command arguments provided
+     * @return a Namespace containing the parsed arguments values
+     * @throws ArgumentParseException if parsing fails or an argument value is invalid
+     * */
+    public Namespace parseArgs(String arguments) throws ArgumentParseException {
+        return parser.parse(this, arguments);
     }
 }

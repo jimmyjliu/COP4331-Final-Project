@@ -5,18 +5,20 @@ Handles parsing a single String input value into typed data.
 ## Development Notes
 
 Log of design decisions, tradeoffs, and other observations:
-- Chose to use a single Argument class that uses generics to represent all types of arguments
-  - This allows for the user to use a more "abstracted" kind of argument system but at the tradeoff of Argument being more complex.
-  - Argument\<T\> is also a deeper abstraction for the user compared to having separate classes for each type of argument.
-  - Parametric polymorphism was chosen over subtyping polymorphism for our implementation of the argument system.
+- Chose to use a base Argument class that uses generics to represent a generic argument type. Specifically typed arguments inherit from Argument\<T\>.
+  - This allows for the user to interact with an abstracted argument system in which they don't have to use specific "addTypeArgument" like in argparse4j.
+  - A builder design pattern was chosen which allows the user to just use one `addArgument` method while still ensuring compile time guarantees for proper method usage for certain types.
+  - The combination of Argument\<T\> and subclasses is exposed to the user with `asType` methods to specify their argument type (IE `asInteger()`).
+  - Custom types are supported with `as()` and custom parsing functions. IE `parser.addArgument("date").as(LocalDate.class).parser(LocalDate::parse);`
 - Create a custom exception for argument parsing errors (ArgumentParseException) to provide more specific error handling and messaging.
-- Allow for chaining of argument parsing and validation methods, similar to argparse4j
-- Allow the user to pass in a custom parser function for more complex argument types.
+- Allows for chaining of argument parsing and validation methods, similar to argparse4j
+- Allows the user to pass in a custom parser function for more complex argument types.
 - Add support for enums and introduce case sensitivity option for enums and strings.
 - Add support for regex validation for string arguments.
 - Add default values and default flag values
-- Since Argument system is built with generics, runtime guard rails were introduced for certain methods to ensure that they are only used with appropriate types.
-  - range: only applicable for numeric types (int, double, etc)
+- Since Argument system is constructed with builder class that instantiates type subclasses, compile time guard rails inherently exist for certain methods to ensure that they are only used with appropriate types.
+  - choice: applicable for all types
+  - range: only applicable for numeric types (int, double)
   - regex: only applicable for String types
   - case sensitivity: only applicable for String and Enum types
 

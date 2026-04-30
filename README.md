@@ -5,6 +5,212 @@ CLI Arg parsing framework for Java
 - Java 17+
 - Gradle
 
+## Beginner's Guide: How to Use the Library
+The command system handles command structures and multi-argument parsing. The argument system handles parsing a single `String` input value into typed data.
+
+The usual workflow is: make a command, add arguments, parse the user input, then pull typed values out of the resulting `Namespace`.
+
+This is meant to get someone started quickly. It does not try to explain every design choice or edge case whereas the Feature Showcase below is better for that.
+
+### Basic setup
+```Java
+import oop.project.library.command.Command;
+import oop.project.library.command.Namespace;
+```
+
+Create a command with the name of the program or subprogram you are modeling. `parseArgs(...)` gets the argument string, meaning the part after the command name.
+
+```Java
+Command search = new Command("search");
+```
+
+### Positional arguments
+Positional arguments are matched in order of declaration, first come first served.
+
+```Java
+Command add = new Command("add");
+add.addArgument("left").asInteger();
+add.addArgument("right").asInteger();
+
+Namespace args = add.parseArgs("8 12");
+
+Integer left = args.get("left", Integer.class);
+Integer right = args.get("right", Integer.class);
+```
+
+Here, `left` is `8` and `right` is `12`.
+
+Arguments support method chaining for parsing and validation, similar to argparse4j:
+
+```Java
+Command fizzbuzz = new Command("fizzbuzz");
+fizzbuzz.addArgument("number")
+        .asInteger()
+        .range(1, 100);
+
+Namespace args = fizzbuzz.parseArgs("21");
+Integer number = args.get("number", Integer.class);
+```
+
+### Named arguments
+Named arguments use flag notation. Long flags take a value from the next token.
+
+```Java
+Command resize = new Command("resize");
+resize.addArgument("--width").asInteger();
+resize.addArgument("--height").asInteger();
+
+Namespace args = resize.parseArgs("--width 2560 --height 1664");
+
+Integer width = args.get("width", Integer.class);
+Integer height = args.get("height", Integer.class);
+```
+
+The name used with `Namespace.get(...)` is the flag name without the dashes.
+
+Named arguments can also have aliases. If a named argument has multiple long and/or short flags, the first flag provided when the argument is created is the name you use later:
+
+```Java
+Command search = new Command("search");
+search.addArgument("term").asString();
+search.addArgument("--case-insensitive", "-i")
+      .asBoolean()
+      .setDefault(false)
+      .setFlagPresentDefault(true);
+
+Namespace args = search.parseArgs("README -i");
+
+String term = args.get("term", String.class);
+Boolean caseInsensitive = args.get("case-insensitive", Boolean.class);
+```
+
+In this example, `term` is `"README"` and `caseInsensitive` is `true`.
+
+### Useful argument types
+The built-in argument types cover the common cases. Each one converts the raw string value and then runs any validation you added.
+
+```Java
+Command profile = new Command("profile");
+
+profile.addArgument("username")
+       .asString()
+       .regex("[a-zA-Z0-9_]+");
+
+profile.addArgument("--age")
+       .asInteger()
+       .range(13, 120);
+
+profile.addArgument("--score")
+       .asDouble()
+       .range(0.0, 100.0);
+
+profile.addArgument("--active")
+       .asBoolean();
+
+Namespace args = profile.parseArgs("LBJ23 --age 41 --score 97.5 --active true");
+```
+
+After parsing:
+
+```Java
+String username = args.get("username", String.class);
+Integer age = args.get("age", Integer.class);
+Double score = args.get("score", Double.class);
+Boolean active = args.get("active", Boolean.class);
+```
+
+For strings, `.choices(...)` is useful when only a few values are valid:
+
+```Java
+Command difficulty = new Command("difficulty");
+difficulty.addArgument("level")
+          .asString()
+          .choices("peaceful", "easy", "normal", "hard");
+
+Namespace args = difficulty.parseArgs("normal");
+String level = args.get("level", String.class);
+```
+
+Enums are supported too:
+
+```Java
+enum Difficulty {
+    PEACEFUL, EASY, NORMAL, HARD
+}
+
+Command game = new Command("game");
+game.addArgument("difficulty")
+    .asEnum(Difficulty.class)
+    .caseSensitive(false);
+
+Namespace args = game.parseArgs("hard");
+Difficulty difficulty = args.get("difficulty", Difficulty.class);
+```
+
+Custom types are supported with `as(...)` and a custom parsing function:
+
+```Java
+import java.time.LocalDate;
+
+Command schedule = new Command("schedule");
+schedule.addArgument("date")
+        .as(LocalDate.class)
+        .parser(LocalDate::parse);
+
+Namespace args = schedule.parseArgs("2026-04-30");
+LocalDate date = args.get("date", LocalDate.class);
+```
+
+### Defaults
+Defaults are applied for non-present positional and named arguments.
+
+```Java
+Command echo = new Command("echo");
+echo.addArgument("message")
+    .asString()
+    .setDefault("echo, echo, echo...");
+
+Namespace args = echo.parseArgs("");
+String message = args.get("message", String.class);
+```
+
+Named flags can also have a separate flag-present default, which is the value used when the flag is present but no specific value is provided. This is most useful for boolean-style short flags:
+
+```Java
+Command grep = new Command("grep");
+grep.addArgument("term").asString();
+grep.addArgument("--ignore-case", "-i")
+    .asBoolean()
+    .setDefault(false)
+    .setFlagPresentDefault(true);
+
+Namespace args = grep.parseArgs("hello -i");
+
+String term = args.get("term", String.class);
+Boolean ignoreCase = args.get("ignore-case", Boolean.class);
+```
+
+### Subcommands
+Subcommands let one command branch into smaller commands. Subcommands are stored as a nested `Namespace` inside the parent `Namespace`.
+
+```Java
+Command dispatch = new Command("dispatch");
+
+Command staticType = dispatch.addSubCommand("static", "type");
+staticType.addArgument("value").asInteger();
+
+Command dynamicType = dispatch.addSubCommand("dynamic", "type");
+dynamicType.addArgument("value").asString();
+
+Namespace args = dispatch.parseArgs("static 10");
+
+String type = args.get("type", String.class);
+Namespace subcommandArgs = args.get(type, Namespace.class);
+Integer value = subcommandArgs.get("value", Integer.class);
+```
+
+Here, `type` is `"static"` and `value` is `10`.
+
 ## Feature Showcase
 ### Arguments
 

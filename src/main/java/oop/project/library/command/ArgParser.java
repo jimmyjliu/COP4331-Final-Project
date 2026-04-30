@@ -45,11 +45,11 @@ public class ArgParser {
             if(parent.getSubcommands().containsKey(posArg)) {
                 break; // is a subcommand should be parsed as a subcommand
             }
-            if(pos >= parent.getPositionalArgs().size()) {
+            if(pos >= parent.getNumPositional()) {
                 // can't nested subcommands within each other
-                throw new ArgumentParseException("Expected " + parent.getPositionalArgs().size() + " arguments for '" + parent.getProgName() + "' but got " + args.positional().size());
+                throw new ArgumentParseException("Expected " + parent.getNumPositional() + " arguments for '" + parent.getProgName() + "' but got " + args.positional().size());
             }
-            Argument<?> arg = parent.getPositionalArgs().get(Integer.toString(pos));
+            Argument<?> arg = parent.getAllArguments().get(Integer.toString(pos));
             String rawValue = args.positional().get(i);
 
             Object convertedValue;
@@ -111,7 +111,7 @@ public class ArgParser {
                     break;
                 }
 
-                Argument<?> argument = parent.getNamedArgs().get(flag);
+                Argument<?> argument = parent.getAllArguments().get(flag);
 
                 if (argument == null) {
                     throw new ArgumentParseException("Named argument '" + flag + "' is not a valid argument for '" +  parent.getProgName() + "'.");
@@ -142,7 +142,7 @@ public class ArgParser {
      * */
     private void applyDefault(Command parent, Map<String, Object> parsedArgs, int givenPositionalArgs) {
         // Apply Named Defaults
-        for (Argument<?> arg : parent.getNamedArgs().values()) {
+        for (Argument<?> arg : parent.getAllArguments().values()) {
             if (!parsedArgs.containsKey(arg.getName())) {
                 if (arg.hasDefault()) {
                     parsedArgs.put(arg.getName(), arg.getDefault());
@@ -151,8 +151,8 @@ public class ArgParser {
         }
 
         // Apply Positional Defaults
-        for (int i = givenPositionalArgs; i < parent.getPositionalArgs().size(); i++) {
-            Argument<?> arg = parent.getPositionalArgs().get(Integer.toString(i));
+        for (int i = givenPositionalArgs; i < parent.getNumPositional(); i++) {
+            Argument<?> arg = parent.getAllArguments().get(Integer.toString(i));
 
             if (arg.getDefault() != null) {
                 parsedArgs.put(arg.getName(), arg.getDefault());
@@ -171,8 +171,8 @@ public class ArgParser {
      * @throws ArgumentParseException if the supplied flag is not valid for the current command
      * */
     private void applyFlagPresentDefault(String rawValue, Command parent, Map<String, Object> parsedArgs) {
-        if(parent.getNamedArgs().containsKey(rawValue)) {
-            for (Argument<?> arg : parent.getNamedArgs().values()) {
+        if(parent.getAllArguments().containsKey(rawValue)) {
+            for (Argument<?> arg : parent.getAllArguments().values()) {
                 if (!parsedArgs.containsKey(arg.getName())) {
                     if (arg.hasFlagPresentDefault()) {
                         parsedArgs.put(arg.getName(), arg.getFlagPresentDefault());

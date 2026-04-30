@@ -9,7 +9,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> mul(String arguments) throws RuntimeException {
        try {
-            CommandParser parse = new CommandParser("mul");
+            Command parse = new Command("mul");
             parse.addArgument("left").asInteger();
             parse.addArgument("right").asInteger();
 
@@ -27,7 +27,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> div(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("div");
+            Command parse = new Command("div");
             parse.addArgument("--left").asDouble();
             parse.addArgument("--right").asDouble();
 
@@ -45,7 +45,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> echo(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("echo");
+            Command parse = new Command("echo");
             parse.addArgument("message").asString().setDefault("echo,echo,echo...");
 
             var namespace = parse.parseArgs(arguments);
@@ -61,7 +61,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> search(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("search");
+            Command parse = new Command("search");
             parse.addArgument("term").asString();
             parse.addArgument("--case-insensitive", "-i").asBoolean().setDefault(false).setFlagPresentDefault(true);
 
@@ -79,7 +79,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> dispatch(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("dispatch");
+            Command parse = new Command("dispatch");
             var staticType = parse.addSubCommand("static", "type");
             staticType.addArgument("value").asInteger();
 
@@ -103,7 +103,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> nested(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("nested");
+            Command parse = new Command("nested");
             var staticType = parse.addSubCommand("static", "type");
             staticType.addArgument("value").asString();
             var dynamicType = parse.addSubCommand("dynamic", "type");
@@ -128,7 +128,7 @@ public final class CommandScenarios {
 
     public static Map<String, Object> coffee(String arguments) throws RuntimeException {
         try {
-            CommandParser parse = new CommandParser("coffee");
+            Command parse = new Command("coffee");
             parse.addArgument("--beans").asString().choices("dark", "light", "medium").setDefault("LIGHT").setFlagPresentDefault("none");
             var namespace = parse.parseArgs(arguments);
 
