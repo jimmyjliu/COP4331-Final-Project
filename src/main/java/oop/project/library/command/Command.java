@@ -179,7 +179,7 @@ public class Command {
     }
 
     /**
-     * Parses the given CLI input for this CommandParser.
+     * Parses the given CLI input for this Command.
      * Subcommands are stored as a nested {@link Namespace} inside parent.
      *
      * @param arguments the raw CLI command arguments provided

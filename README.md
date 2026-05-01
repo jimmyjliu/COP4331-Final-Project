@@ -233,7 +233,7 @@ parser.addArgument("term")
 
 Code Example: Our framework
 ```Java
-CommandParser parser = new CommandParser("search");
+Command parser = new Command("search");
 
 // Immediate feedback given to framework user that this is an invalid argument configuration. Does not compile.
 parser.addArgument("term")
@@ -253,7 +253,7 @@ This is similar to a parsed abstract syntax tree.
 Example:
 ```Java
 public static Map<String, Object> example(String arguments) throws RuntimeException {
-    CommandParser parse = new CommandParser("dispatch");
+    Command parse = new Command("dispatch");
 
     var staticType = parse.addSubCommand("static", "type");
     staticType.addArgument("value").asInteger();
@@ -286,7 +286,7 @@ call `setFlagPresentDefault` which clarifies that this is the value when a flag 
 documentation and the developer can understand what the purpose of the function is for.
 ```Java
 public static Map<String, Object> example(String arguments) throws RuntimeException {
-    CommandParser parse = new CommandParser("foo");
+    Command parse = new Command("foo");
      parse.addArgument("--dynamic", "-d")
              .asInteger()
              .setDefault(30)
@@ -311,7 +311,7 @@ When subcommands are used, a developer can no longer add more posiitonals to the
 Example:
 ```Java
 public static Map<String, Object> example(String arguments) throws RuntimeException {
-    CommandParser parse = new CommandParser("foo");
+    Command parse = new Command("foo");
     parse.addArgument("value").asInteger();
     var boo = parse.addSubCommand("boo", "type");
     boo.addArgument("index").asString();
