@@ -28,6 +28,10 @@ public final class Scenarios {
             case "dispatch" -> CommandScenarios.dispatch(arguments);
             case "nested" -> CommandScenarios.nested(arguments);
             case "coffee" -> CommandScenarios.coffee(arguments);
+            case "showcase-search" -> FeatureShowcaseScenarios.typedArgumentConstruction(arguments);
+            case "showcase-dispatch" -> FeatureShowcaseScenarios.nestedSubcommands(arguments);
+            case "showcase-foo" -> FeatureShowcaseScenarios.flagPresentDefault(arguments);
+            case "showcase-foo-order" -> FeatureShowcaseScenarios.positionalOrderEnforcement(arguments);
             default -> throw new AssertionError(base);
         };
     }

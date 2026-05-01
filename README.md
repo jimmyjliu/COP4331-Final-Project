@@ -295,7 +295,7 @@ public static Map<String, Object> example(String arguments) throws RuntimeExcept
 ```
 Output:
 ```terminaloutput
-foo -d 20
+foo --dynamic 20
 {dynamic=20}
 
 foo -d
@@ -306,7 +306,7 @@ foo
 ```
 
 #### 3. Positional Argument Order Enforcement
-When subcommands are used, a developer can no longer add more posiitonals to the parent command as it is difficult to differentiate what belongs the parent or subcommand.
+When subcommands are used, a developer can no longer add more positionals to the parent command as it is difficult to differentiate what belongs to the parent or subcommand.
 
 Example:
 ```Java
@@ -316,7 +316,7 @@ public static Map<String, Object> example(String arguments) throws RuntimeExcept
     var boo = parse.addSubCommand("boo", "type");
     boo.addArgument("index").asString();
     
-    // Will cause an exception to be thrown when command is used
+    // Will cause an exception to be thrown during command configuration
     parse.addArgument("next").asInteger();
 }
 ```
